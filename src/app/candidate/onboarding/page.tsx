@@ -244,10 +244,6 @@ export default function OnboardingPage() {
     }
   }
 
-  const handleSkipCv = () => {
-    setStep(4)
-  }
-
   const completeOnboarding = () => {
     router.push('/candidate/jobs')
   }
@@ -367,7 +363,8 @@ export default function OnboardingPage() {
           {step === 3.5 && (
             <div>
               <h2 className="text-2xl font-bold text-[#0D1B2A] mb-6">Upload your CV (Resume)</h2>
-              <p className="text-gray-600 mb-6">PDF only • Max 10MB</p>
+              <p className="text-gray-600 mb-2">PDF only • Max 10MB</p>
+              <p className="text-sm text-red-600 font-medium mb-6">Required to complete onboarding</p>
 
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6 hover:border-[#D4AF37] transition">
                 <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,17 +398,11 @@ export default function OnboardingPage() {
                   Back
                 </button>
                 <button
-                  onClick={handleSkipCv}
-                  className="flex-1 px-4 py-2 text-[#0D1B2A] border border-[#0D1B2A] rounded-lg font-medium hover:bg-gray-50 transition"
-                >
-                  Skip for now
-                </button>
-                <button
                   onClick={uploadCv}
                   disabled={!cvFile || uploading}
                   className="flex-1 bg-[#D4AF37] text-[#0D1B2A] py-2 rounded-lg font-medium hover:bg-[#c49d23] disabled:opacity-50 transition"
                 >
-                  {uploading ? 'Uploading...' : 'Upload'}
+                  {uploading ? 'Uploading...' : 'Upload CV'}
                 </button>
               </div>
             </div>

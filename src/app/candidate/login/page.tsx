@@ -46,19 +46,25 @@ export default function CandidateLoginPage() {
       // Check if candidate has completed onboarding
       const { data: candidate, error: candidateError } = await supabase
         .from('candidates')
-        .select('cv_url, skills')
+        .select('cv_url, bio, skills')
         .eq('profile_id', data.user.id)
         .single()
 
       if (!candidateError && candidate) {
-        // If cv_url exists, they've completed onboarding
-        if (candidate.cv_url) {
+        // Onboarding complete only if: has cv_url AND has bio AND has skills (all required)
+        const isOnboardingComplete = 
+          !!(candidate.cv_url) && 
+          !!(candidate.bio) && 
+          candidate.skills && 
+          candidate.skills.length > 0
+
+        if (isOnboardingComplete) {
           router.push('/candidate/dashboard')
         } else {
           router.push('/candidate/onboarding')
         }
       } else {
-        router.push('/candidate/dashboard')
+        router.push('/candidate/onboarding')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')

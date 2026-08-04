@@ -126,10 +126,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Determine if onboarding is complete
-    // Complete if: has cv_url OR (has bio AND has skills)
+    // Complete ONLY if: has cv_url AND has bio AND has skills (all required)
     const isOnboardingComplete = 
-      !!(candidate?.cv_url) || 
-      (!!(candidate?.bio) && candidate?.skills && candidate.skills.length > 0)
+      !!(candidate?.cv_url) && 
+      !!(candidate?.bio) && 
+      candidate?.skills && 
+      candidate.skills.length > 0
 
     // Redirect based on onboarding status
     if (isOnboardingComplete) {
