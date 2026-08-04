@@ -11,11 +11,31 @@ export default function PrivacyPolicy() {
     <>
       <Header />
       <main>
-        <section className="py-20 bg-white">
-          <div className="max-w-4xl mx-auto px-6">
-            <h1 className="text-4xl font-bold mb-8" style={{ color: '#0D1B2A' }}>
+        {/* Hero */}
+        <section 
+          className="py-16 bg-cover bg-center relative"
+          style={{
+            backgroundImage: "url('/hero-privacy.jpg')",
+          }}
+        >
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+
+          <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
               Privacy Policy
             </h1>
+            <p className="text-xl text-gray-100">
+              Your data security and privacy are our priority.
+            </p>
+          </div>
+        </section>
+
+        <section className="py-20 bg-white">
+          <div className="max-w-4xl mx-auto px-6">
+            <h2 className="text-3xl font-bold mb-8" style={{ color: '#0D1B2A' }}>
+              Data Protection & Privacy
+            </h2>
 
             <div className="prose prose-lg max-w-none space-y-8 text-gray-700">
               <div>

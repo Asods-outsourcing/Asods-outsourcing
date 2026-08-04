@@ -13,12 +13,20 @@ export default function Employers() {
       <Header />
       <main>
         {/* Hero */}
-        <section className="bg-gradient-to-r from-blue-50 to-blue-50 py-20">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#0D1B2A' }}>
+        <section 
+          className="py-20 bg-cover bg-center relative"
+          style={{
+            backgroundImage: "url('/hero-employers.jpg')",
+          }}
+        >
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+
+          <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
               Staffing Built for Real Business.
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-xl text-gray-100 mb-8">
               No forms that disappear into a void. No waiting and hoping. Submit a staffing request and see exactly where it stands, every step of the way.
             </p>
             <Link

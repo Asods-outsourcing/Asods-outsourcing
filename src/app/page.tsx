@@ -7,14 +7,22 @@ export default function Home() {
     <>
       <Header />
       <main>
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-blue-50 py-24">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6" style={{ color: '#0D1B2A' }}>
+        {/* Hero Section with Background Image */}
+        <section 
+          className="bg-gradient-to-r from-blue-50 to-blue-50 py-24 bg-cover bg-center relative"
+          style={{
+            backgroundImage: "url('/hero-home.jpg')",
+          }}
+        >
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+          
+          <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
               Exceptional Talent.
               <span style={{ color: '#D4AF37' }}> Predictable Results.</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
               ASODS connects you with qualified professionals and manages your workforce with real-time visibility. No waiting. No surprises. Just results.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -26,11 +34,18 @@ export default function Home() {
                 Request Staff Now
               </Link>
               <Link
-                href="/careers"
-                className="px-8 py-4 rounded-lg font-semibold transition border-2"
-                style={{ borderColor: '#0D1B2A', color: '#0D1B2A' }}
+                href="/candidate/signup"
+                className="px-8 py-4 rounded-lg font-semibold text-white transition hover:shadow-lg"
+                style={{ backgroundColor: '#0D1B2A' }}
               >
-                Browse Open Roles
+                Sign Up as Candidate
+              </Link>
+              <Link
+                href="/candidate/jobs"
+                className="px-8 py-4 rounded-lg font-semibold transition border-2"
+                style={{ borderColor: '#D4AF37', color: '#D4AF37' }}
+              >
+                Browse Jobs
               </Link>
             </div>
           </div>

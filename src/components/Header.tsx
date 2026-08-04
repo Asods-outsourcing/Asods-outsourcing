@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -23,13 +24,26 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold" style={{ color: '#0D1B2A' }}>
-              ASODS
-            </span>
-            <span className="text-xs font-semibold text-gray-500 tracking-wide">
-              OUTSOURCING
-            </span>
+          <div className="flex items-center gap-2">
+            {/* Logo Image */}
+            <div className="w-10 h-10 rounded flex items-center justify-center">
+              <Image
+                src="/logo.jpg"
+                alt="ASODS Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover rounded"
+                priority
+              />
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold" style={{ color: '#0D1B2A' }}>
+                ASODS
+              </span>
+              <span className="text-xs font-semibold text-gray-500 tracking-wide">
+                OUTSOURCING
+              </span>
+            </div>
           </div>
         </Link>
 

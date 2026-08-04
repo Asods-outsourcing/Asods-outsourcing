@@ -37,12 +37,20 @@ export default function Contact() {
       <Header />
       <main>
         {/* Hero */}
-        <section className="bg-gradient-to-r from-blue-50 to-blue-50 py-16">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#0D1B2A' }}>
+        <section 
+          className="py-16 bg-cover bg-center relative"
+          style={{
+            backgroundImage: "url('/hero-contact.jpg')",
+          }}
+        >
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+
+          <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
               Get in Touch
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-100">
               Questions about our services? Ready to discuss your staffing needs? We're here to help.
             </p>
           </div>

@@ -84,12 +84,20 @@ export default async function Careers() {
       <Header />
       <main>
         {/* Hero */}
-        <section className="bg-gradient-to-r from-blue-50 to-blue-50 py-16">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#0D1B2A' }}>
+        <section 
+          className="bg-cover bg-center relative py-16"
+          style={{
+            backgroundImage: "url('/hero-careers.jpg')",
+          }}
+        >
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+
+          <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
               Join the ASODS Team
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-100">
               Build your career with Nigeria's leading workforce solutions partner.
             </p>
           </div>
