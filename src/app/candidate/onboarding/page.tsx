@@ -131,6 +131,7 @@ export default function OnboardingPage() {
         .eq('id', candidateId)
 
       if (updateError) {
+        console.error('CV update error:', updateError)
         setError(`Failed to save CV: ${updateError.message}`)
         setUploading(false)
         return
@@ -163,7 +164,8 @@ export default function OnboardingPage() {
         .eq('id', userId)
 
       if (profileError) {
-        setError('Failed to save name')
+        console.error('Profile update error:', profileError)
+        setError(`Failed to save name: ${profileError.message}`)
         setLoading(false)
         return
       }
@@ -194,7 +196,8 @@ export default function OnboardingPage() {
         .eq('id', candidateId)
 
       if (error) {
-        setError('Failed to save bio')
+        console.error('Candidate bio update error:', error)
+        setError(`Failed to save bio: ${error.message}`)
         setLoading(false)
         return
       }
@@ -231,7 +234,8 @@ export default function OnboardingPage() {
         .eq('id', candidateId)
 
       if (error) {
-        setError('Failed to save skills')
+        console.error('Candidate skills update error:', error)
+        setError(`Failed to save skills: ${error.message}`)
         setLoading(false)
         return
       }

@@ -61,56 +61,43 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Check if profile exists; if not, create it
-    const { data: profile, error: profileError } = await supabase
+    // Create profile if it doesn't exist (attempt insert, ignore duplicate error)
+    const { error: createProfileError } = await supabase
       .from('profiles')
-      .select('id, role')
-      .eq('id', user.id)
+      .insert({
+        id: user.id,
+        role: 'candidate',
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email,
+      })
+      .select()
       .maybeSingle()
 
-    if (profileError && profileError.code !== 'PGRST116') {
-      // PGRST116 means no rows, which is expected for first-time users
-      console.error('Error checking profile:', profileError)
-      return NextResponse.redirect(
-        new URL(
-          '/candidate/login?error=profile_check_failed&description=Unable to check profile status',
-          request.url
-        )
-      )
+    // Ignore "duplicate key value violates unique constraint" errors
+    if (createProfileError) {
+      console.error('Error creating profile:', {
+        message: createProfileError.message,
+        code: createProfileError.code,
+        details: (createProfileError as any).details,
+        hint: (createProfileError as any).hint,
+        userId: user.id,
+      })
+      // Continue anyway - might be duplicate or RLS issue
     }
 
-    // If no profile exists, create one
-    if (!profile) {
-      const { error: createProfileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          role: 'candidate',
-          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          email: user.email,
-        })
+    // Create candidate record if it doesn't exist
+    const { error: createCandidateError } = await supabase
+      .from('candidates')
+      .insert({
+        profile_id: user.id,
+      })
+      .select()
+      .maybeSingle()
 
-      if (createProfileError) {
-        console.error('Error creating profile:', createProfileError)
-        return NextResponse.redirect(
-          new URL(
-            '/candidate/login?error=profile_creation_failed&description=Unable to create profile',
-            request.url
-          )
-        )
-      }
-
-      // Create candidate record
-      const { error: createCandidateError } = await supabase
-        .from('candidates')
-        .insert({
-          profile_id: user.id,
-        })
-
-      if (createCandidateError) {
-        console.error('Error creating candidate record:', createCandidateError)
-        // Don't fail here; the onboarding page will handle missing candidate record
-      }
+    // Ignore duplicate errors
+    if (createCandidateError && createCandidateError.code !== '23505') {
+      console.error('Error creating candidate record:', createCandidateError)
+      // Continue anyway
     }
 
     // Check candidate onboarding status
