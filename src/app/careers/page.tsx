@@ -85,9 +85,13 @@ export default async function Careers() {
       <main>
         {/* Hero */}
         <section 
-          className="bg-cover bg-center relative py-16"
+          className="bg-cover bg-center bg-fixed relative py-16"
           style={{
             backgroundImage: "url('/hero-careers.jpg')",
+            backgroundAttachment: 'fixed',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            willChange: 'background-image',
           }}
         >
           {/* Overlay for text readability */}

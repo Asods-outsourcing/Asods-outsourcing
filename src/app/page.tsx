@@ -9,9 +9,13 @@ export default function Home() {
       <main>
         {/* Hero Section with Background Image */}
         <section 
-          className="bg-gradient-to-r from-blue-50 to-blue-50 py-24 bg-cover bg-center relative"
+          className="py-24 bg-cover bg-center bg-fixed relative"
           style={{
             backgroundImage: "url('/hero-home.jpg')",
+            backgroundAttachment: 'fixed',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            willChange: 'background-image',
           }}
         >
           {/* Overlay for text readability */}

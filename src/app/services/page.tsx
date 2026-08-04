@@ -58,9 +58,13 @@ export default function Services() {
       <main>
         {/* Hero */}
         <section 
-          className="py-16 bg-cover bg-center relative"
+          className="py-16 bg-cover bg-center bg-fixed relative"
           style={{
             backgroundImage: "url('/hero-services.jpg')",
+            backgroundAttachment: 'fixed',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            willChange: 'background-image',
           }}
         >
           {/* Overlay for text readability */}

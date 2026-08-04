@@ -14,9 +14,13 @@ export default function Employers() {
       <main>
         {/* Hero */}
         <section 
-          className="py-20 bg-cover bg-center relative"
+          className="py-20 bg-cover bg-center bg-fixed relative"
           style={{
             backgroundImage: "url('/hero-employers.jpg')",
+            backgroundAttachment: 'fixed',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            willChange: 'background-image',
           }}
         >
           {/* Overlay for text readability */}

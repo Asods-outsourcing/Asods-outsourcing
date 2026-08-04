@@ -17,9 +17,13 @@ export default function HeroSection({
 }: HeroSectionProps) {
   return (
     <section
-      className="py-24 bg-cover bg-center relative"
+      className="py-24 bg-cover bg-center bg-fixed relative"
       style={{
         backgroundImage: `url('${backgroundImage}')`,
+        backgroundAttachment: 'fixed',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        willChange: 'background-image',
       }}
     >
       {/* Overlay for text readability */}

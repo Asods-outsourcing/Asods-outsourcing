@@ -64,9 +64,13 @@ export default function Industries() {
       <main>
         {/* Hero */}
         <section 
-          className="py-16 bg-cover bg-center relative"
+          className="py-16 bg-cover bg-center bg-fixed relative"
           style={{
             backgroundImage: "url('/hero-industries.jpg')",
+            backgroundAttachment: 'fixed',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            willChange: 'background-image',
           }}
         >
           {/* Overlay for text readability */}
