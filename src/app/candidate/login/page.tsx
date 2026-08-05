@@ -44,13 +44,23 @@ export default function CandidateLoginPage() {
       }
 
       // Check if candidate has completed onboarding
+      console.log('[Login] Checking onboarding status for user:', data.user.id)
       const { data: candidate, error: candidateError } = await supabase
         .from('candidates')
         .select('cv_url, bio, skills')
         .eq('profile_id', data.user.id)
-        .single()
+        .maybeSingle()
 
-      if (!candidateError && candidate) {
+      if (candidateError) {
+        console.error('[Login] Error fetching candidate:', {
+          message: candidateError.message,
+          code: candidateError.code,
+          details: (candidateError as any).details,
+          hint: (candidateError as any).hint,
+        })
+        console.log('[Login] Redirecting to onboarding due to error')
+        router.push('/candidate/onboarding')
+      } else if (candidate) {
         // Onboarding complete only if: has cv_url AND has bio AND has skills (all required)
         const isOnboardingComplete = 
           !!(candidate.cv_url) && 
@@ -58,12 +68,23 @@ export default function CandidateLoginPage() {
           candidate.skills && 
           candidate.skills.length > 0
 
+        console.log('[Login] Onboarding status check:', {
+          has_cv_url: !!candidate.cv_url,
+          has_bio: !!candidate.bio,
+          has_skills: candidate.skills ? candidate.skills.length > 0 : false,
+          isOnboardingComplete,
+        })
+
         if (isOnboardingComplete) {
+          console.log('[Login] ✓ Onboarding complete - redirecting to dashboard')
           router.push('/candidate/dashboard')
         } else {
+          console.log('[Login] ✗ Onboarding incomplete - redirecting to onboarding')
           router.push('/candidate/onboarding')
         }
       } else {
+        // No candidate record found - first-time user
+        console.log('[Login] No candidate record found - first-time user, redirecting to onboarding')
         router.push('/candidate/onboarding')
       }
     } catch (err) {

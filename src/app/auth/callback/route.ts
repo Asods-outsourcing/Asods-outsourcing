@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Create profile if it doesn't exist (attempt insert, ignore duplicate error)
+    console.log('OAuth callback: Attempting to insert profile for user:', user.id)
     const { error: createProfileError } = await supabase
       .from('profiles')
       .insert({
@@ -73,34 +74,52 @@ export async function GET(request: NextRequest) {
       .select()
       .maybeSingle()
 
-    // Ignore "duplicate key value violates unique constraint" errors
+    // Log full error details if insert fails
     if (createProfileError) {
-      console.error('Error creating profile:', {
+      console.error('OAuth callback: Profile insert error - FULL ERROR OBJECT:', {
         message: createProfileError.message,
         code: createProfileError.code,
         details: (createProfileError as any).details,
         hint: (createProfileError as any).hint,
-        userId: user.id,
+        status: (createProfileError as any).status,
       })
-      // Continue anyway - might be duplicate or RLS issue
+      // Continue anyway - check if it's a duplicate (code 23505)
+      if (createProfileError.code === '23505') {
+        console.log('Profile already exists (duplicate key)')
+      }
+    } else {
+      console.log('OAuth callback: Profile insert successful')
     }
 
-    // Create candidate record if it doesn't exist
+    // Create or update candidate record (upsert to avoid duplicates)
+    console.log('OAuth callback: Attempting to upsert candidate for profile_id:', user.id)
     const { error: createCandidateError } = await supabase
       .from('candidates')
-      .insert({
-        profile_id: user.id,
-      })
+      .upsert(
+        {
+          profile_id: user.id,
+        },
+        { onConflict: 'profile_id' }
+      )
       .select()
       .maybeSingle()
 
-    // Ignore duplicate errors
-    if (createCandidateError && createCandidateError.code !== '23505') {
-      console.error('Error creating candidate record:', createCandidateError)
-      // Continue anyway
+    // Log full error details if upsert fails
+    if (createCandidateError) {
+      console.error('OAuth callback: Candidate upsert error - FULL ERROR OBJECT:', {
+        message: createCandidateError.message,
+        code: createCandidateError.code,
+        details: (createCandidateError as any).details,
+        hint: (createCandidateError as any).hint,
+        status: (createCandidateError as any).status,
+      })
+      // Continue anyway - should be safe with unique constraint in place
+    } else {
+      console.log('OAuth callback: Candidate upsert successful')
     }
 
     // Check candidate onboarding status
+    console.log('[OAuth Callback] Checking candidate onboarding status for profile_id:', user.id)
     const { data: candidate, error: candidateError } = await supabase
       .from('candidates')
       .select('id, cv_url, bio, skills')
@@ -108,7 +127,12 @@ export async function GET(request: NextRequest) {
       .maybeSingle()
 
     if (candidateError && candidateError.code !== 'PGRST116') {
-      console.error('Error checking candidate record:', candidateError)
+      console.error('[OAuth Callback] Error checking candidate record:', {
+        message: candidateError.message,
+        code: candidateError.code,
+        details: (candidateError as any).details,
+        hint: (candidateError as any).hint,
+      })
       // Continue anyway; the onboarding page will handle this
     }
 
@@ -120,12 +144,22 @@ export async function GET(request: NextRequest) {
       candidate?.skills && 
       candidate.skills.length > 0
 
+    console.log('[OAuth Callback] Onboarding status check:', {
+      has_candidate_record: !!candidate,
+      has_cv_url: !!candidate?.cv_url,
+      has_bio: !!candidate?.bio,
+      has_skills: candidate?.skills ? candidate.skills.length > 0 : false,
+      isOnboardingComplete,
+    })
+
     // Redirect based on onboarding status
     if (isOnboardingComplete) {
       // User has completed onboarding, send to dashboard
+      console.log('[OAuth Callback] ✓ Onboarding complete - redirecting to dashboard')
       return NextResponse.redirect(new URL('/candidate/dashboard', request.url))
     } else {
       // First-time user, send to onboarding
+      console.log('[OAuth Callback] ✗ Onboarding incomplete - redirecting to onboarding')
       return NextResponse.redirect(new URL('/candidate/onboarding', request.url))
     }
   } catch (err) {

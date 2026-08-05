@@ -71,7 +71,7 @@ export default function ApplicationDetailPage() {
           .from('candidates')
           .select('id')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (candidateError || !candidate) {
           setError('Failed to verify candidate')
@@ -98,7 +98,7 @@ export default function ApplicationDetailPage() {
           `
           )
           .eq('id', applicationId)
-          .single()
+          .maybeSingle()
 
         if (appError || !appData) {
           setError('Application not found')

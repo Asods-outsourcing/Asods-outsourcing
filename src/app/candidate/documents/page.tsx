@@ -37,7 +37,7 @@ export default function DocumentsPage() {
           .from('candidates')
           .select('id, cv_url')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (candidateError) {
           setError('Failed to load candidate data')

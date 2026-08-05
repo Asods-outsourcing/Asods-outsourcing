@@ -45,7 +45,7 @@ export default function ProfilePage() {
           .from('profiles')
           .select('full_name, email')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
 
         if (profileError) {
           setError('Failed to load profile')
@@ -58,7 +58,7 @@ export default function ProfilePage() {
           .from('candidates')
           .select('bio, skills')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (candidateError) {
           setError('Failed to load candidate details')

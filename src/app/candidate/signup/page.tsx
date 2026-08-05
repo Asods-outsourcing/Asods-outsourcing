@@ -42,6 +42,7 @@ export default function CandidateSignupPage() {
       }
 
       // Sign up with Supabase Auth
+      console.log('[Signup] Starting email signup for:', email)
       const { data, error: signupError } = await supabase.auth.signUp({
         email,
         password,
@@ -55,18 +56,36 @@ export default function CandidateSignupPage() {
       })
 
       if (signupError) {
+        // Log raw error first
+        console.error('[Signup] Auth signup error (raw):', signupError)
+        console.error('[Signup] Auth signup error (stringified):', JSON.stringify(signupError, null, 2))
+        console.error('[Signup] Error type:', typeof signupError)
+        console.error('[Signup] Error keys:', Object.keys(signupError))
+        
+        const errorDetails: any = {
+          message: (signupError as any).message,
+          code: (signupError as any).code,
+          status: (signupError as any).status,
+          toString: signupError?.toString?.(),
+        }
+        console.error('[Signup] Auth signup error (extracted):', errorDetails)
+        
         setError(signupError.message)
         setLoading(false)
         return
       }
 
       if (!data.user) {
+        console.error('[Signup] No user returned from signUp')
         setError('Failed to create account')
         setLoading(false)
         return
       }
 
+      console.log('[Signup] Auth signup successful, user ID:', data.user.id)
+
       // Create candidate profile in profiles table
+      console.log('Attempting to insert profile for user:', data.user.id)
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -76,27 +95,77 @@ export default function CandidateSignupPage() {
           email,
         })
 
-      if (profileError && !profileError.message.includes('duplicate')) {
-        setError('Failed to create profile')
-        setLoading(false)
-        return
+      if (profileError) {
+        // Log raw error first (no assumptions about structure)
+        console.error('[Signup] Profile insert error (raw):', profileError)
+        console.error('[Signup] Profile insert error (stringified):', JSON.stringify(profileError, null, 2))
+        console.error('[Signup] Error type:', typeof profileError)
+        console.error('[Signup] Error keys:', Object.keys(profileError))
+        
+        // Then try to extract properties if they exist
+        const errorDetails: any = {
+          message: (profileError as any).message,
+          code: (profileError as any).code,
+          details: (profileError as any).details,
+          hint: (profileError as any).hint,
+          status: (profileError as any).status,
+          toString: profileError?.toString?.(),
+        }
+        console.error('[Signup] Profile insert error (extracted properties):', errorDetails)
+        
+        // Check if it's a duplicate key error (code 23505) - if so, it's OK
+        if ((profileError as any).code === '23505') {
+          console.log('[Signup] Profile already exists (duplicate key) - this is OK, continuing')
+        } else {
+          console.error('[Signup] Profile insert failed - setting error')
+          setError('Failed to create profile')
+          setLoading(false)
+          return
+        }
+      } else {
+        console.log('[Signup] Profile insert successful')
       }
 
-      // Create candidate record
-      const { error: candidateError } = await supabase.from('candidates').insert({
-        profile_id: data.user.id,
-      })
+      // Create or update candidate record (upsert to avoid duplicates)
+      console.log('[Signup] Attempting to upsert candidate for profile_id:', data.user.id)
+      const { error: candidateError } = await supabase.from('candidates').upsert(
+        {
+          profile_id: data.user.id,
+        },
+        { onConflict: 'profile_id' }
+      )
 
-      if (candidateError && !candidateError.message.includes('duplicate')) {
+      if (candidateError) {
+        // Log raw error first (no assumptions about structure)
+        console.error('[Signup] Candidate upsert error (raw):', candidateError)
+        console.error('[Signup] Candidate upsert error (stringified):', JSON.stringify(candidateError, null, 2))
+        console.error('[Signup] Error type:', typeof candidateError)
+        console.error('[Signup] Error keys:', Object.keys(candidateError))
+        
+        // Then try to extract properties if they exist
+        const errorDetails: any = {
+          message: (candidateError as any).message,
+          code: (candidateError as any).code,
+          details: (candidateError as any).details,
+          hint: (candidateError as any).hint,
+          status: (candidateError as any).status,
+          toString: candidateError?.toString?.(),
+        }
+        console.error('[Signup] Candidate upsert error (extracted):', errorDetails)
+        
         setError('Failed to initialize candidate record')
         setLoading(false)
         return
       }
 
+      console.log('[Signup] Candidate upsert successful')
+
       // Show confirmation message
       setError('')
+      console.log('Email signup completed successfully')
       router.push('/candidate/signup-confirm')
     } catch (err) {
+      console.error('Unexpected error in handleEmailSignup:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)

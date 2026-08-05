@@ -33,38 +33,117 @@ export default function OnboardingPage() {
         } = await supabase.auth.getUser()
 
         if (!user) {
+          console.warn('No authenticated user found, redirecting to login')
           router.push('/candidate/login')
           return
         }
 
+        console.log('[Onboarding] Authenticated user found:', user.id)
         setUserId(user.id)
 
-        // Fetch profile and candidate data
+        // Fetch profile and candidate data - use maybeSingle() not single()
+        console.log('[Onboarding] Fetching profile for user:', user.id)
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('full_name')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
 
-        if (!profileError && profile?.full_name) {
+        if (profileError) {
+          console.error('[Onboarding] Error loading profile:', {
+            message: profileError.message,
+            code: profileError.code,
+            details: (profileError as any).details,
+            hint: (profileError as any).hint,
+            status: (profileError as any).status,
+          })
+        } else {
+          console.log('[Onboarding] Profile fetched successfully:', profile)
+        }
+
+        if (profile?.full_name) {
+          console.log('[Onboarding] Setting fullName from profile:', profile.full_name)
           setFullName(profile.full_name)
         }
 
+        console.log('[Onboarding] Fetching candidate for profile_id:', user.id)
         const { data: candidate, error: candidateError } = await supabase
           .from('candidates')
           .select('id, bio, skills, cv_url')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
-        if (!candidateError && candidate) {
+        if (candidateError) {
+          console.error('[Onboarding] Error loading candidate - FULL ERROR:', candidateError)
+          console.error('[Onboarding] Error loading candidate - STRINGIFIED:', JSON.stringify(candidateError, null, 2))
+          console.error('[Onboarding] Error details:', {
+            message: candidateError.message,
+            code: candidateError.code,
+            details: (candidateError as any).details,
+            hint: (candidateError as any).hint,
+            status: (candidateError as any).status,
+            toString: candidateError.toString(),
+            keys: Object.keys(candidateError),
+          })
+        }
+
+        if (candidate) {
+          console.log('[Onboarding] Candidate fetched successfully:', candidate)
+          console.log('[Onboarding] Setting candidateId:', candidate.id)
           setCandidateId(candidate.id)
-          if (candidate.bio) setBio(candidate.bio)
-          if (candidate.skills) setSkills(candidate.skills.join(', '))
-          if (candidate.cv_url) setCvFileName('CV uploaded ✓')
+          if (candidate.bio) {
+            console.log('[Onboarding] Setting bio from candidate:', candidate.bio)
+            setBio(candidate.bio)
+          }
+          if (candidate.skills && candidate.skills.length > 0) {
+            console.log('[Onboarding] Setting skills from candidate:', candidate.skills)
+            setSkills(candidate.skills.join(', '))
+          }
+          if (candidate.cv_url) {
+            console.log('[Onboarding] CV already uploaded:', candidate.cv_url)
+            setCvFileName('CV uploaded ✓')
+          }
+
+          // *** CRITICAL CHECK: Determine if onboarding is COMPLETE ***
+          // All three must exist: cv_url AND bio AND skills (with length > 0)
+          const isOnboardingComplete =
+            !!(candidate.cv_url) &&
+            !!(candidate.bio) &&
+            candidate.skills &&
+            candidate.skills.length > 0
+
+          console.log('[Onboarding] Onboarding status check:', {
+            has_cv_url: !!candidate.cv_url,
+            has_bio: !!candidate.bio,
+            has_skills: candidate.skills ? candidate.skills.length > 0 : false,
+            isOnboardingComplete,
+          })
+
+          if (isOnboardingComplete) {
+            console.log('[Onboarding] ✓ Onboarding is COMPLETE - redirecting to dashboard')
+            router.push('/candidate/dashboard')
+            return
+          } else {
+            console.log('[Onboarding] ✗ Onboarding is INCOMPLETE - showing onboarding form')
+            console.log('[Onboarding] Missing: ', {
+              need_cv: !candidate.cv_url,
+              need_bio: !candidate.bio,
+              need_skills: !candidate.skills || candidate.skills.length === 0,
+            })
+          }
+        } else {
+          console.warn('[Onboarding] No candidate record found for profile_id:', user.id)
+          console.warn('[Onboarding] This is expected for a first-time user - candidate will be created on form submission')
         }
       } catch (err) {
-        console.error('Failed to load user:', err)
-        router.push('/candidate/login')
+        console.error('[Onboarding] Fatal error in loadUser:', err)
+        console.error('[Onboarding] Error details:', {
+          message: err instanceof Error ? err.message : 'Unknown error',
+          stack: err instanceof Error ? err.stack : 'No stack trace',
+          type: typeof err,
+        })
+        // Don't redirect on error - show the form and let user proceed
+        // They may have just signed up and the candidate record hasn't been created yet
       }
     }
 
@@ -102,21 +181,30 @@ export default function OnboardingPage() {
     setError('')
 
     try {
-      const fileExt = 'pdf'
-      const fileName = `${userId}-${Date.now()}.${fileExt}`
+      // Use secure folder-based path: cvs/{userId}/{timestamp}-{filename}.pdf
+      const fileName = `${Date.now()}-${cvFile.name}`
+      const filePath = `${userId}/${fileName}`
 
+      console.log('Uploading CV to path:', filePath)
       const { error: uploadError } = await supabase.storage
         .from('cvs')
-        .upload(fileName, cvFile, { upsert: false })
+        .upload(filePath, cvFile, { upsert: false })
 
       if (uploadError) {
+        console.error('CV upload error:', {
+          message: uploadError.message,
+          code: (uploadError as any).code,
+          details: (uploadError as any).details,
+        })
         setError(`Upload failed: ${uploadError.message}`)
         setUploading(false)
         return
       }
 
+      console.log('CV upload successful')
+
       // Get public URL
-      const { data } = supabase.storage.from('cvs').getPublicUrl(fileName)
+      const { data } = supabase.storage.from('cvs').getPublicUrl(filePath)
 
       if (!candidateId) {
         setError('Candidate ID not found')
@@ -316,21 +404,26 @@ export default function OnboardingPage() {
                 rows={5}
                 disabled={loading}
               />
+              {!bio && <p className="text-sm text-gray-500 mb-4">Please enter a short bio to continue</p>}
               <div className="flex gap-4">
                 <button
                   onClick={() => setStep(1)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition"
+                  disabled={loading}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleStep2}
-                  disabled={loading || !bio}
+                  disabled={loading || !bio || !candidateId}
                   className="flex-1 bg-[#0D1B2A] text-white py-2 rounded-lg font-medium hover:bg-[#0a1420] disabled:opacity-50 transition"
                 >
                   {loading ? 'Saving...' : 'Continue'}
                 </button>
               </div>
+              {!candidateId && bio && (
+                <p className="text-sm text-amber-600 mt-4">Loading profile information...</p>
+              )}
             </div>
           )}
 
@@ -346,21 +439,26 @@ export default function OnboardingPage() {
                 rows={3}
                 disabled={loading}
               />
+              {!skills && <p className="text-sm text-gray-500 mb-4">Please add at least one skill to continue</p>}
               <div className="flex gap-4">
                 <button
                   onClick={() => setStep(2)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition"
+                  disabled={loading}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleStep3}
-                  disabled={loading || !skills}
+                  disabled={loading || !skills || !candidateId}
                   className="flex-1 bg-[#0D1B2A] text-white py-2 rounded-lg font-medium hover:bg-[#0a1420] disabled:opacity-50 transition"
                 >
                   {loading ? 'Saving...' : 'Continue'}
                 </button>
               </div>
+              {!candidateId && skills && (
+                <p className="text-sm text-amber-600 mt-4">Loading profile information...</p>
+              )}
             </div>
           )}
 

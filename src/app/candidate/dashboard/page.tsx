@@ -47,7 +47,7 @@ export default function CandidateDashboardPage() {
           .from('profiles')
           .select('full_name')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
 
         if (!profileError && profileData) {
           setProfile(profileData)
@@ -58,7 +58,7 @@ export default function CandidateDashboardPage() {
           .from('candidates')
           .select('id')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (candidateError || !candidate) {
           setError('Failed to load candidate profile')

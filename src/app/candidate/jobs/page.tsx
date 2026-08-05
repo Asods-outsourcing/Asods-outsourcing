@@ -47,7 +47,7 @@ export default function JobsPage() {
           .from('candidates')
           .select('id')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (candidateError || !candidate) {
           setError('Failed to load candidate profile')

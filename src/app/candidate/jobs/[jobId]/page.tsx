@@ -44,7 +44,7 @@ export default function JobDetailPage() {
           .from('candidates')
           .select('id')
           .eq('profile_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (candidateError || !candidate) {
           setError('Failed to load candidate profile')
@@ -59,7 +59,7 @@ export default function JobDetailPage() {
           .from('jobs')
           .select('*')
           .eq('id', jobId)
-          .single()
+          .maybeSingle()
 
         if (jobError || !jobData) {
           setError('Job not found')
@@ -75,7 +75,7 @@ export default function JobDetailPage() {
           .select('id')
           .eq('candidate_id', candidate.id)
           .eq('job_id', jobId)
-          .single()
+          .maybeSingle()
 
         if (application) {
           setApplied(true)
