@@ -53,6 +53,12 @@ export default function ProfilePage() {
           return
         }
 
+        if (!profileData) {
+          setError('Profile not found')
+          setLoading(false)
+          return
+        }
+
         // Fetch candidate details
         const { data: candidate, error: candidateError } = await supabase
           .from('candidates')
@@ -69,8 +75,8 @@ export default function ProfilePage() {
         const combined: CandidateProfile = {
           full_name: profileData.full_name || '',
           email: profileData.email || '',
-          bio: candidate.bio || '',
-          skills: candidate.skills || [],
+          bio: candidate?.bio || '',
+          skills: candidate?.skills || [],
         }
 
         setProfile(combined)

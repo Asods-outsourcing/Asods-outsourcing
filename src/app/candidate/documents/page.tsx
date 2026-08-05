@@ -45,6 +45,12 @@ export default function DocumentsPage() {
           return
         }
 
+        if (!candidate) {
+          setError('Candidate profile not found')
+          setLoading(false)
+          return
+        }
+
         setCandidateId(candidate.id)
         setCvUrl(candidate.cv_url)
         setLoading(false)
