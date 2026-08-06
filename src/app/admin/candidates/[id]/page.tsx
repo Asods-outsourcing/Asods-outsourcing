@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { stageConfig } from '@/lib/admin/kanban'
+import { PlacementModal } from '@/components/PlacementModal'
 
 interface ApplicationDetail {
   id: string
@@ -51,6 +52,8 @@ export default function CandidateDetailPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showPlacementModal, setShowPlacementModal] = useState(false)
+  const [employerId, setEmployerId] = useState('')
 
   useEffect(() => {
     const loadApplication = async () => {
@@ -92,9 +95,14 @@ export default function CandidateDetailPage() {
         // Fetch job details
         const { data: job, error: jobError } = await supabase
           .from('jobs')
-          .select('id, title, description')
+          .select('id, title, description, employer_id')
           .eq('id', data.job_id)
           .maybeSingle()
+
+        // Set employer ID from job
+        if (job?.employer_id) {
+          setEmployerId(job.employer_id)
+        }
 
         // Fetch profile details
         let profile = null
@@ -164,6 +172,36 @@ export default function CandidateDetailPage() {
   const handleStageChange = async (newStage: string) => {
     if (!application || newStage === application.stage) return
 
+    // If moving to "placed", show the placement modal instead
+    if (newStage === 'placed') {
+      setShowPlacementModal(true)
+      // Temporarily update stage to placed (will be saved when user confirms in modal)
+      setSaving(true)
+      
+      try {
+        const { error: updateError } = await supabase
+          .from('applications')
+          .update({ stage: newStage })
+          .eq('id', applicationId)
+
+        if (updateError) {
+          console.error('[Candidate Detail] Stage update error:', updateError)
+          setError('Failed to update status')
+          setSaving(false)
+          return
+        }
+
+        setApplication({ ...application, stage: newStage })
+        setSaving(false)
+      } catch (err) {
+        console.error('[Candidate Detail] Update error:', err)
+        setError('An unexpected error occurred')
+        setSaving(false)
+      }
+      return
+    }
+
+    // For other stages, update directly
     setSaving(true)
     setError('')
     setSuccess('')
@@ -395,6 +433,25 @@ export default function CandidateDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Placement Modal */}
+      {application && (
+        <PlacementModal
+          isOpen={showPlacementModal}
+          candidateId={application.candidates.id}
+          candidateName={application.profiles?.full_name}
+          employerId={employerId}
+          applicationId={applicationId}
+          onClose={() => setShowPlacementModal(false)}
+          onSuccess={() => {
+            setShowPlacementModal(false)
+            setSuccess('Candidate marked as placed and deployment record created!')
+            setTimeout(() => setSuccess(''), 3000)
+            // Optionally redirect to placed-staff list
+            // router.push('/admin/placed-staff')
+          }}
+        />
+      )}
     </div>
   )
 }
