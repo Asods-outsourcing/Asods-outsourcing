@@ -82,6 +82,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/home', label: 'Today', icon: '📋' },
     { href: '/admin/requests', label: 'Requests', icon: '📝' },
     { href: '/admin/candidates', label: 'Candidates', icon: '👥' },
+    { href: '/admin/jobs', label: 'Jobs', icon: '💼' },
   ]
 
   // Show loading state for protected pages
