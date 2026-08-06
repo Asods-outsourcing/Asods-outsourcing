@@ -41,6 +41,29 @@ export default function OnboardingPage() {
         console.log('[Onboarding] Authenticated user found:', user.id)
         setUserId(user.id)
 
+        // Ensure candidates row exists (in case this is an email signup user who just verified)
+        // This is safe to run even if the row already exists - upsert handles that
+        console.log('[Onboarding] Ensuring candidates row exists for profile_id:', user.id)
+        const { error: ensureCandidateError } = await supabase
+          .from('candidates')
+          .upsert(
+            {
+              profile_id: user.id,
+            },
+            { onConflict: 'profile_id' }
+          )
+
+        if (ensureCandidateError) {
+          console.error('[Onboarding] Error ensuring candidates row exists:', {
+            message: ensureCandidateError.message,
+            code: ensureCandidateError.code,
+            details: (ensureCandidateError as any).details,
+            hint: (ensureCandidateError as any).hint,
+          })
+        } else {
+          console.log('[Onboarding] Candidates row ensured successfully')
+        }
+
         // Fetch profile and candidate data - use maybeSingle() not single()
         console.log('[Onboarding] Fetching profile for user:', user.id)
         const { data: profile, error: profileError } = await supabase
