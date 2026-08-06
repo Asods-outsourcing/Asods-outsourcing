@@ -13,6 +13,10 @@ export default function CandidateLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotMessage, setForgotMessage] = useState('')
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -119,6 +123,46 @@ export default function CandidateLoginPage() {
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setForgotMessage('')
+    setForgotLoading(true)
+
+    try {
+      if (!forgotEmail) {
+        setForgotMessage('Please enter your email address')
+        setForgotLoading(false)
+        return
+      }
+
+      console.log('[Forgot Password] Sending reset email to:', forgotEmail)
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
+      })
+
+      if (error) {
+        console.error('[Forgot Password] Error:', error)
+        setForgotMessage('Failed to send reset email. Please try again.')
+        setForgotLoading(false)
+        return
+      }
+
+      console.log('[Forgot Password] Reset email sent successfully')
+      setForgotMessage('Password reset email sent! Check your inbox and click the link to reset your password.')
+      setForgotEmail('')
+      setForgotLoading(false)
+      
+      // Auto-close forgot password modal after 5 seconds
+      setTimeout(() => {
+        setShowForgotPassword(false)
+      }, 5000)
+    } catch (err) {
+      console.error('[Forgot Password] Unexpected error:', err)
+      setForgotMessage(err instanceof Error ? err.message : 'An error occurred')
+      setForgotLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F1F2F6] flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
@@ -172,6 +216,15 @@ export default function CandidateLoginPage() {
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            disabled={loading}
+            className="w-full mt-2 text-sm text-[#D4AF37] hover:underline font-medium"
+          >
+            Forgot password?
+          </button>
         </form>
 
         <div className="relative mb-6">
@@ -205,6 +258,66 @@ export default function CandidateLoginPage() {
           </Link>
         </p>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center px-4 z-50">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+            <h3 className="text-2xl font-bold text-[#0D1B2A] mb-4">Reset Password</h3>
+            <p className="text-gray-600 text-sm mb-6">
+              Enter your email address and we&rsquo;ll send you a link to reset your password.
+            </p>
+
+            {forgotMessage && (
+              <div className={`mb-6 p-4 rounded ${
+                forgotMessage.includes('sent') 
+                  ? 'bg-green-50 border border-green-200 text-green-700' 
+                  : 'bg-red-50 border border-red-200 text-red-700'
+              }`}>
+                {forgotMessage}
+              </div>
+            )}
+
+            {!forgotMessage.includes('sent') && (
+              <form onSubmit={handleForgotPassword} className="space-y-4 mb-6">
+                <div>
+                  <label htmlFor="forgotEmail" className="block text-sm font-medium text-[#333333] mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="forgotEmail"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+                    placeholder="your@email.com"
+                    disabled={forgotLoading}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full bg-[#0D1B2A] text-white py-2 rounded-lg font-medium hover:bg-[#0a1420] disabled:opacity-50 transition"
+                >
+                  {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+                </button>
+              </form>
+            )}
+
+            <button
+              onClick={() => {
+                setShowForgotPassword(false)
+                setForgotMessage('')
+                setForgotEmail('')
+              }}
+              className="w-full text-sm text-gray-600 hover:underline"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
