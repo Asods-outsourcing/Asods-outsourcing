@@ -61,38 +61,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Create profile if it doesn't exist (attempt insert, ignore duplicate error)
-    console.log('OAuth callback: Attempting to insert profile for user:', user.id)
-    const { error: createProfileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: user.id,
-        role: 'candidate',
-        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-        email: user.email,
-      })
-      .select()
-      .maybeSingle()
+    console.log('[OAuth Callback] Exchanged code for session, user ID:', user.id)
 
-    // Log full error details if insert fails
-    if (createProfileError) {
-      console.error('OAuth callback: Profile insert error - FULL ERROR OBJECT:', {
-        message: createProfileError.message,
-        code: createProfileError.code,
-        details: (createProfileError as any).details,
-        hint: (createProfileError as any).hint,
-        status: (createProfileError as any).status,
-      })
-      // Continue anyway - check if it's a duplicate (code 23505)
-      if (createProfileError.code === '23505') {
-        console.log('Profile already exists (duplicate key)')
-      }
-    } else {
-      console.log('OAuth callback: Profile insert successful')
-    }
-
-    // Create or update candidate record (upsert to avoid duplicates)
-    console.log('OAuth callback: Attempting to upsert candidate for profile_id:', user.id)
+    // Profile row will be created automatically by database trigger (handle_new_user)
+    // Now that we have a real authenticated session, create or upsert the candidates row
+    console.log('[OAuth Callback] Attempting to upsert candidate for profile_id:', user.id)
     const { error: createCandidateError } = await supabase
       .from('candidates')
       .upsert(
@@ -106,7 +79,7 @@ export async function GET(request: NextRequest) {
 
     // Log full error details if upsert fails
     if (createCandidateError) {
-      console.error('OAuth callback: Candidate upsert error - FULL ERROR OBJECT:', {
+      console.error('[OAuth Callback] Candidate upsert error - FULL ERROR OBJECT:', {
         message: createCandidateError.message,
         code: createCandidateError.code,
         details: (createCandidateError as any).details,
@@ -115,7 +88,7 @@ export async function GET(request: NextRequest) {
       })
       // Continue anyway - should be safe with unique constraint in place
     } else {
-      console.log('OAuth callback: Candidate upsert successful')
+      console.log('[OAuth Callback] Candidate upsert successful')
     }
 
     // Check candidate onboarding status

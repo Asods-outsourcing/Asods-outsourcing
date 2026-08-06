@@ -84,85 +84,15 @@ export default function CandidateSignupPage() {
 
       console.log('[Signup] Auth signup successful, user ID:', data.user.id)
 
-      // Create candidate profile in profiles table
-      console.log('Attempting to insert profile for user:', data.user.id)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          role: 'candidate',
-          full_name: fullName,
-          email,
-        })
-
-      if (profileError) {
-        // Log raw error first (no assumptions about structure)
-        console.error('[Signup] Profile insert error (raw):', profileError)
-        console.error('[Signup] Profile insert error (stringified):', JSON.stringify(profileError, null, 2))
-        console.error('[Signup] Error type:', typeof profileError)
-        console.error('[Signup] Error keys:', Object.keys(profileError))
-        
-        // Then try to extract properties if they exist
-        const errorDetails: any = {
-          message: (profileError as any).message,
-          code: (profileError as any).code,
-          details: (profileError as any).details,
-          hint: (profileError as any).hint,
-          status: (profileError as any).status,
-          toString: profileError?.toString?.(),
-        }
-        console.error('[Signup] Profile insert error (extracted properties):', errorDetails)
-        
-        // Check if it's a duplicate key error (code 23505) - if so, it's OK
-        if ((profileError as any).code === '23505') {
-          console.log('[Signup] Profile already exists (duplicate key) - this is OK, continuing')
-        } else {
-          console.error('[Signup] Profile insert failed - setting error')
-          setError('Failed to create profile')
-          setLoading(false)
-          return
-        }
-      } else {
-        console.log('[Signup] Profile insert successful')
-      }
-
-      // Create or update candidate record (upsert to avoid duplicates)
-      console.log('[Signup] Attempting to upsert candidate for profile_id:', data.user.id)
-      const { error: candidateError } = await supabase.from('candidates').upsert(
-        {
-          profile_id: data.user.id,
-        },
-        { onConflict: 'profile_id' }
-      )
-
-      if (candidateError) {
-        // Log raw error first (no assumptions about structure)
-        console.error('[Signup] Candidate upsert error (raw):', candidateError)
-        console.error('[Signup] Candidate upsert error (stringified):', JSON.stringify(candidateError, null, 2))
-        console.error('[Signup] Error type:', typeof candidateError)
-        console.error('[Signup] Error keys:', Object.keys(candidateError))
-        
-        // Then try to extract properties if they exist
-        const errorDetails: any = {
-          message: (candidateError as any).message,
-          code: (candidateError as any).code,
-          details: (candidateError as any).details,
-          hint: (candidateError as any).hint,
-          status: (candidateError as any).status,
-          toString: candidateError?.toString?.(),
-        }
-        console.error('[Signup] Candidate upsert error (extracted):', errorDetails)
-        
-        setError('Failed to initialize candidate record')
-        setLoading(false)
-        return
-      }
-
-      console.log('[Signup] Candidate upsert successful')
+      // Profile row will be created automatically by database trigger (handle_new_user)
+      // Candidates row will be created/upserted later in the OAuth callback or onboarding flow
+      // when a real authenticated session exists.
+      // For email signups, the user must verify their email first before any session-dependent
+      // operations can succeed.
 
       // Show confirmation message
       setError('')
-      console.log('Email signup completed successfully')
+      console.log('Email signup completed successfully - user must verify email')
       router.push('/candidate/signup-confirm')
     } catch (err) {
       console.error('Unexpected error in handleEmailSignup:', err)

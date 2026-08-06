@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -12,13 +12,23 @@ interface AdminProfile {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
 
   const [profile, setProfile] = useState<AdminProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // Check if we're on the login page
+  const isLoginPage = pathname === '/admin/login'
+
   useEffect(() => {
+    if (isLoginPage) {
+      // Don't check auth on login page
+      setLoading(false)
+      return
+    }
+
     const checkAdminAuth = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
@@ -57,7 +67,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     checkAdminAuth()
-  }, [supabase, router])
+  }, [supabase, router, isLoginPage])
 
   const handleLogout = async () => {
     try {
@@ -74,7 +84,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/candidates', label: 'Candidates', icon: '👥' },
   ]
 
-  if (loading) {
+  // Show loading state for protected pages
+  if (loading && !isLoginPage) {
     return (
       <div className="min-h-screen bg-[#F1F2F6] flex items-center justify-center">
         <p className="text-[#333333]">Loading...</p>
@@ -82,6 +93,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
+  // Show just the children on login page (no header/nav)
+  if (isLoginPage) {
+    return <>{children}</>
+  }
+
+  // Show full layout on authenticated pages
   if (!profile) {
     return null
   }
