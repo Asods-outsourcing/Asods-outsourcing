@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { sendNotificationEmail } from '@/lib/notifications/sendNotification'
 import { stageConfig } from '@/lib/admin/kanban'
 import { PlacementModal } from '@/components/PlacementModal'
 
@@ -220,8 +221,39 @@ export default function CandidateDetailPage() {
       }
 
       setApplication({ ...application, stage: newStage })
-      const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
-      setSuccess(`Candidate moved to ${stageLabel}`)
+
+      // Send notification email for supported stages
+      const emailStages = ['screening', 'interview', 'rejected']
+      if (emailStages.includes(newStage) && application.profiles?.email && application.candidates?.id) {
+        try {
+          console.log('[Candidate Detail] Sending notification email for stage:', newStage)
+          const result = await sendNotificationEmail({
+            candidateId: application.candidates.id,
+            stage: newStage as 'screening' | 'interview' | 'rejected',
+            candidateName: application.profiles?.full_name || 'Candidate',
+            candidateEmail: application.profiles?.email,
+            jobTitle: application.jobs?.title || 'Position',
+          })
+
+          if (result.success) {
+            console.log('[Candidate Detail] Notification email sent successfully')
+            const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
+            setSuccess(`Candidate moved to ${stageLabel} and notification sent`)
+          } else {
+            console.warn('[Candidate Detail] Notification email failed:', result.error)
+            const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
+            setSuccess(`Candidate moved to ${stageLabel} (email send failed - follow up manually)`)
+          }
+        } catch (emailErr) {
+          console.error('[Candidate Detail] Unexpected error sending email:', emailErr)
+          const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
+          setSuccess(`Candidate moved to ${stageLabel} (email send failed - follow up manually)`)
+        }
+      } else {
+        const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
+        setSuccess(`Candidate moved to ${stageLabel}`)
+      }
+
       setTimeout(() => setSuccess(''), 3000)
       setSaving(false)
     } catch (err) {
