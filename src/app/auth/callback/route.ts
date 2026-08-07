@@ -63,6 +63,30 @@ export async function GET(request: NextRequest) {
 
     console.log('[OAuth Callback] Exchanged code for session, user ID:', user.id)
 
+    // Fetch user profile to check role
+    console.log('[OAuth Callback] Fetching user profile for role check:', user.id)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      console.error('[OAuth Callback] Error fetching profile:', profileError)
+      // Continue - profile might be created by trigger
+    }
+
+    const userRole = profile?.role || 'candidate'
+    console.log('[OAuth Callback] User role:', userRole)
+
+    // Route based on role
+    if (userRole === 'admin') {
+      // Admin user - redirect to admin dashboard
+      console.log('[OAuth Callback] ✓ Admin OAuth login - redirecting to admin home')
+      return NextResponse.redirect(new URL('/admin/home', request.url))
+    }
+
+    // Candidate flow
     // Profile row will be created automatically by database trigger (handle_new_user)
     // Now that we have a real authenticated session, create or upsert the candidates row
     console.log('[OAuth Callback] Attempting to upsert candidate for profile_id:', user.id)
