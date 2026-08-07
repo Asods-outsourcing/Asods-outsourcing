@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const NOTIFICATION_FROM_EMAIL = process.env.NOTIFICATION_FROM_EMAIL || 'notifications@resend.dev'
 
 interface NotificationData {
   candidateId: string
@@ -16,8 +17,13 @@ interface NotificationData {
   customNote?: string
 }
 
+/**
+ * Send notification email and log to audit trail using service role
+ * This uses the service role key to bypass RLS for logging (internal audit only)
+ */
 export async function sendNotificationEmail(data: NotificationData) {
   try {
+    // Use regular client to fetch template (admin access via RLS)
     const supabase = await createClient()
 
     // Fetch the template for this stage
@@ -62,7 +68,7 @@ export async function sendNotificationEmail(data: NotificationData) {
     // Send email via Resend
     console.log('[Send Notification] Sending email to:', data.candidateEmail)
     const { error: sendError } = await resend.emails.send({
-      from: 'notifications@resend.dev',
+      from: NOTIFICATION_FROM_EMAIL,
       to: data.candidateEmail,
       subject: subject,
       html: `<p>${body.replace(/\n/g, '<br />')}</p>`,
@@ -73,8 +79,9 @@ export async function sendNotificationEmail(data: NotificationData) {
       return { success: false, error: 'Failed to send email' }
     }
 
-    // Log the notification
-    const { error: logError } = await supabase.from('notifications_log').insert({
+    // Log the notification using service role key (bypasses RLS for audit trail)
+    const supabaseServiceRole = await createClient('service_role')
+    const { error: logError } = await supabaseServiceRole.from('notifications_log').insert({
       candidate_id: data.candidateId,
       stage: data.stage,
       sent_at: new Date().toISOString(),
@@ -87,7 +94,7 @@ export async function sendNotificationEmail(data: NotificationData) {
       // Don't fail the whole operation if logging fails
     }
 
-    console.log('[Send Notification] Email sent successfully')
+    console.log('[Send Notification] Email sent successfully and logged')
     return { success: true }
   } catch (err) {
     console.error('[Send Notification] Unexpected error:', err)

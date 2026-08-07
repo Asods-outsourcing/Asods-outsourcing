@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { sendNotificationEmail } from '@/lib/notifications/sendNotification'
 import { stageConfig } from '@/lib/admin/kanban'
 import { PlacementModal } from '@/components/PlacementModal'
+import { OfferModal } from '@/components/OfferModal'
 
 interface ApplicationDetail {
   id: string
@@ -54,6 +55,8 @@ export default function CandidateDetailPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showPlacementModal, setShowPlacementModal] = useState(false)
+  const [showOfferModal, setShowOfferModal] = useState(false)
+  const [offerStageToApply, setOfferStageToApply] = useState<string | null>(null)
   const [employerId, setEmployerId] = useState('')
 
   useEffect(() => {
@@ -158,7 +161,7 @@ export default function CandidateDetailPage() {
         return
       }
 
-      setApplication({ ...application, notes })
+      setApplication((prev) => prev ? { ...prev, notes } : null)
       setSuccess('Notes saved')
       setNotesEditing(false)
       setTimeout(() => setSuccess(''), 3000)
@@ -172,6 +175,17 @@ export default function CandidateDetailPage() {
 
   const handleStageChange = async (newStage: string) => {
     if (!application || newStage === application.stage) return
+
+    // If moving to "offer", show the offer modal first (don't update stage yet)
+    if (newStage === 'offer') {
+      if (!application.profiles?.email) {
+        setError('Candidate email not found')
+        return
+      }
+      setOfferStageToApply('offer')
+      setShowOfferModal(true)
+      return
+    }
 
     // If moving to "placed", show the placement modal instead
     if (newStage === 'placed') {
@@ -192,7 +206,7 @@ export default function CandidateDetailPage() {
           return
         }
 
-        setApplication({ ...application, stage: newStage })
+        setApplication((prev) => prev ? { ...prev, stage: newStage } : null)
         setSaving(false)
       } catch (err) {
         console.error('[Candidate Detail] Update error:', err)
@@ -220,7 +234,7 @@ export default function CandidateDetailPage() {
         return
       }
 
-      setApplication({ ...application, stage: newStage })
+      setApplication((prev) => prev ? { ...prev, stage: newStage } : null)
 
       // Send notification email for supported stages
       const emailStages = ['screening', 'interview', 'rejected']
@@ -238,27 +252,60 @@ export default function CandidateDetailPage() {
           if (result.success) {
             console.log('[Candidate Detail] Notification email sent successfully')
             const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
-            setSuccess(`Candidate moved to ${stageLabel} and notification sent`)
+            setSuccess(`Candidate moved to ${stageLabel}. Email sent to ${application.profiles?.email}`)
           } else {
             console.warn('[Candidate Detail] Notification email failed:', result.error)
             const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
-            setSuccess(`Candidate moved to ${stageLabel} (email send failed - follow up manually)`)
+            setError(`Candidate moved to ${stageLabel}, but email failed to send: ${result.error}. Please follow up manually.`)
           }
         } catch (emailErr) {
           console.error('[Candidate Detail] Unexpected error sending email:', emailErr)
           const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
-          setSuccess(`Candidate moved to ${stageLabel} (email send failed - follow up manually)`)
+          setError(`Candidate moved to ${stageLabel}, but email failed to send. Please follow up manually.`)
         }
       } else {
         const stageLabel = stageActions.find((s) => s.value === newStage)?.label || newStage
         setSuccess(`Candidate moved to ${stageLabel}`)
       }
 
-      setTimeout(() => setSuccess(''), 3000)
+      setTimeout(() => {
+        setSuccess('')
+        setError('')
+      }, 5000)
       setSaving(false)
     } catch (err) {
       console.error('[Candidate Detail] Update error:', err)
       setError('An unexpected error occurred')
+      setSaving(false)
+    }
+  }
+
+  const handleOfferModalSuccess = async () => {
+    // After offer email is sent, now update the stage to "offer"
+    setSaving(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const { error: updateError } = await supabase
+        .from('applications')
+        .update({ stage: 'offer' })
+        .eq('id', applicationId)
+
+      if (updateError) {
+        console.error('[Candidate Detail] Stage update error:', updateError)
+        setError('Stage update failed after sending offer')
+        setSaving(false)
+        return
+      }
+
+      setApplication((prev) => prev ? { ...prev, stage: 'offer' } : null)
+      setShowOfferModal(false)
+      setOfferStageToApply(null)
+      setSaving(false)
+    } catch (err) {
+      console.error('[Candidate Detail] Update error:', err)
+      setError('An unexpected error occurred while updating stage')
       setSaving(false)
     }
   }
@@ -481,6 +528,29 @@ export default function CandidateDetailPage() {
             setTimeout(() => setSuccess(''), 3000)
             // Optionally redirect to placed-staff list
             // router.push('/admin/placed-staff')
+          }}
+        />
+      )}
+
+      {/* Offer Modal */}
+      {application && (
+        <OfferModal
+          isOpen={showOfferModal}
+          candidateId={application.candidates.id}
+          candidateName={application.profiles?.full_name || 'Candidate'}
+          candidateEmail={application.profiles?.email || ''}
+          jobTitle={application.jobs?.title || 'Position'}
+          applicationId={applicationId}
+          onClose={() => {
+            setShowOfferModal(false)
+            setOfferStageToApply(null)
+          }}
+          onSuccess={(message) => {
+            setSuccess(message)
+            handleOfferModalSuccess()
+          }}
+          onError={(errorMsg) => {
+            setError(errorMsg)
           }}
         />
       )}
