@@ -279,7 +279,6 @@ export default function CandidateDetailPage() {
                   View CV
                 </a>
               )}
-              )}
             </div>
 
             <div className="space-y-4">
