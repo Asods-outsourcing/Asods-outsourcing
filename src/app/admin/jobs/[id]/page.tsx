@@ -102,9 +102,9 @@ export default function EditJobPage() {
     setLoading(true)
 
     try {
-      // Validate inputs
-      if (!title || !description || !location || !employerId) {
-        setError('All fields are required')
+      // Validate inputs (employer is optional)
+      if (!title || !description || !location) {
+        setError('Title, description, and location are required')
         setLoading(false)
         return
       }
@@ -154,15 +154,15 @@ export default function EditJobPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <Link href="/admin/jobs" className="text-[#D4AF37] hover:text-[#c49d23] font-medium text-sm">
           ← Back to Jobs
         </Link>
-        <h1 className="text-4xl font-bold text-[#0D1B2A] mt-4 mb-2">Edit Job Listing</h1>
-        <p className="text-gray-600">Update job details</p>
+        <h1 className="text-2xl md:text-4xl font-bold text-[#0D1B2A] mt-4 mb-1 md:mb-2">Edit Job Listing</h1>
+        <p className="text-sm md:text-base text-gray-600">Update job details</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-2xl">
+      <div className="bg-white rounded-lg shadow-md p-4 md:p-8 max-w-2xl">
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
             {error}
@@ -175,7 +175,7 @@ export default function EditJobPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-[#333333] mb-2">
@@ -227,7 +227,7 @@ export default function EditJobPage() {
           {/* Employer */}
           <div>
             <label htmlFor="employer" className="block text-sm font-medium text-[#333333] mb-2">
-              Employer
+              Employer (optional)
             </label>
             <select
               id="employer"
@@ -236,7 +236,7 @@ export default function EditJobPage() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
               disabled={loading || employers.length === 0}
             >
-              <option value="">Select an employer...</option>
+              <option value="">— No employer assigned —</option>
               {employers.map((emp) => (
                 <option key={emp.id} value={emp.id}>
                   {emp.company_name}
@@ -261,17 +261,17 @@ export default function EditJobPage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4 pt-6 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-4 md:pt-6 border-t border-gray-200">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-[#0D1B2A] text-white rounded-lg font-medium hover:bg-[#0a1420] disabled:opacity-50 transition"
+              className="w-full px-4 py-2 bg-[#0D1B2A] text-white rounded-lg font-medium hover:bg-[#0a1420] disabled:opacity-50 transition text-sm md:text-base"
             >
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
             <Link
               href="/admin/jobs"
-              className="flex-1 px-4 py-2 bg-gray-200 text-[#333333] rounded-lg font-medium hover:bg-gray-300 transition text-center"
+              className="w-full px-4 py-2 bg-gray-200 text-[#333333] rounded-lg font-medium hover:bg-gray-300 transition text-center text-sm md:text-base"
             >
               Cancel
             </Link>

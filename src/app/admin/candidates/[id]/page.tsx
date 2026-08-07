@@ -253,31 +253,32 @@ export default function CandidateDetailPage() {
 
   return (
     <div>
-      <Link href="/admin/candidates" className="text-[#D4AF37] hover:text-[#c49d23] mb-6 inline-block">
+      <Link href="/admin/candidates" className="text-[#D4AF37] hover:text-[#c49d23] mb-6 inline-block text-sm md:text-base">
         ← Back to candidates
       </Link>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Main content */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-4 md:space-y-6">
           {/* Candidate Profile */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-[#0D1B2A]">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4 md:mb-6">
+              <div className="flex-1">
+                <h1 className="text-2xl md:text-3xl font-bold text-[#0D1B2A]">
                   {application.profiles?.full_name}
                 </h1>
-                <p className="text-gray-600 mt-1">{application.jobs?.title}</p>
+                <p className="text-sm md:text-base text-gray-600 mt-1">{application.jobs?.title}</p>
               </div>
               {application.candidates?.cv_url && (
                 <a
                   href={application.candidates.cv_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition"
+                  className="px-3 md:px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition text-sm md:text-base"
                 >
                   View CV
                 </a>
+              )}
               )}
             </div>
 
@@ -390,7 +391,7 @@ export default function CandidateDetailPage() {
 
         {/* Sidebar - Actions */}
         <div className="md:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-20">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 md:sticky md:top-20">
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded text-sm">
                 {error}
@@ -403,7 +404,7 @@ export default function CandidateDetailPage() {
               </div>
             )}
 
-            <h3 className="text-lg font-bold text-[#0D1B2A] mb-4">Update Status</h3>
+            <h3 className="text-base md:text-lg font-bold text-[#0D1B2A] mb-4">Update Status</h3>
 
             <div className="space-y-2">
               {stageActions.map((action) => (

@@ -98,9 +98,9 @@ export default function AdminRequestsPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[#0D1B2A] mb-2">Staffing Requests</h1>
-        <p className="text-gray-600">Manage all client staffing requests</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-4xl font-bold text-[#0D1B2A] mb-1 md:mb-2">Staffing Requests</h1>
+        <p className="text-sm md:text-base text-gray-600">Manage all client staffing requests</p>
       </div>
 
       {error && (
@@ -118,8 +118,8 @@ export default function AdminRequestsPage() {
           <p className="text-gray-600">No staffing requests yet.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+          <table className="w-full min-w-max md:min-w-0">
             <thead>
               <tr className="bg-[#F1F2F6] border-b border-gray-200">
                 <th className="px-6 py-4 text-left text-sm font-semibold text-[#0D1B2A]">
