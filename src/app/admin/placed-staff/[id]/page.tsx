@@ -203,17 +203,17 @@ export default function PlacedStaffDetailPage() {
 
   return (
     <div>
-      <Link href="/admin/placed-staff" className="text-[#D4AF37] hover:text-[#c49d23] mb-6 inline-block">
+      <Link href="/admin/placed-staff" className="text-[#D4AF37] hover:text-[#c49d23] mb-6 inline-block text-sm md:text-base">
         ← Back to deployed staff
       </Link>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Main content */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-4 md:space-y-6">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-3xl font-bold text-[#0D1B2A] mb-1">{candidateName}</h1>
-            <p className="text-gray-600">{employerName}</p>
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#0D1B2A] mb-1">{candidateName}</h1>
+            <p className="text-sm md:text-base text-gray-600">{employerName}</p>
 
             {error && (
               <div className="mt-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
@@ -229,8 +229,8 @@ export default function PlacedStaffDetailPage() {
           </div>
 
           {/* Deployment Details */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-[#0D1B2A] mb-4">Deployment Details</h2>
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-bold text-[#0D1B2A] mb-4">Deployment Details</h2>
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-gray-600">Start Date</p>
@@ -263,7 +263,7 @@ export default function PlacedStaffDetailPage() {
           </div>
 
           {/* Notes */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-[#0D1B2A]">Notes</h2>
               {!notesEditing && (
@@ -314,10 +314,10 @@ export default function PlacedStaffDetailPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-bold text-[#0D1B2A] mb-4">Quick Actions</h3>
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+            <h3 className="text-base md:text-lg font-bold text-[#0D1B2A] mb-4">Quick Actions</h3>
             <button
               onClick={() => handleStatusChange('needs_attention')}
               disabled={saving || status === 'needs_attention'}
