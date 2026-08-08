@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { stageConfig, stageOrder } from '@/lib/admin/kanban'
+import { sendNotificationEmail } from '@/lib/notifications/sendNotification'
 
 interface Application {
   id: string
@@ -106,17 +107,105 @@ export default function CandidatesKanbanPage() {
       return
     }
 
+    console.log(`[Stage Change Handler] FIRED - Moving candidate ${draggedApp.id} (${draggedApp.full_name}) from ${draggedApp.stage} to ${newStage}`)
+
     try {
+      console.log('[Stage Change Handler] Updating stage in database...')
       const { error: updateError } = await supabase
         .from('applications')
         .update({ stage: newStage })
         .eq('id', draggedApp.id)
 
       if (updateError) {
-        console.error('[Kanban] Update error:', updateError)
+        console.error('[Stage Change Handler] Supabase update error:', updateError)
         showToast('Failed to move candidate', 'error')
         setDraggedApp(null)
         return
+      }
+
+      console.log('[Stage Change Handler] Stage updated in DB. Fetching application data for notification...')
+      
+      // Fetch full application data for notification
+      const { data: appData, error: fetchError } = await supabase
+        .from('applications')
+        .select(`
+          id,
+          stage,
+          candidate_id,
+          job_id,
+          jobs (title)
+        `)
+        .eq('id', draggedApp.id)
+        .single()
+
+      if (fetchError || !appData) {
+        console.error('[Stage Change Handler] Failed to fetch updated application:', fetchError)
+        showToast('Failed to fetch application data', 'error')
+        setDraggedApp(null)
+        return
+      }
+
+      console.log('[Stage Change Handler] Fetched application data:', appData)
+
+      // Fetch candidate profile for notification
+      const { data: candidateData, error: candidateError } = await supabase
+        .from('candidates')
+        .select('profile_id')
+        .eq('id', appData.candidate_id)
+        .single()
+
+      if (candidateError || !candidateData) {
+        console.error('[Stage Change Handler] Failed to fetch candidate:', candidateError)
+        showToast('Failed to fetch candidate data', 'error')
+        setDraggedApp(null)
+        return
+      }
+
+      console.log('[Stage Change Handler] Fetched candidate data:', candidateData)
+
+      // Fetch profile for email and name
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', candidateData.profile_id)
+        .single()
+
+      if (profileError || !profileData) {
+        console.error('[Stage Change Handler] Failed to fetch candidate profile:', profileError)
+        console.error('[Stage Change Handler] Raw error object:', profileError)
+        showToast('Failed to fetch candidate profile', 'error')
+        setDraggedApp(null)
+        return
+      }
+
+      console.log('[Stage Change Handler] Fetched profile data:', profileData)
+      console.log('[Stage Change Handler] Calling sendNotificationEmail server action...')
+
+      // Get job title from appData
+      const jobTitle = (appData.jobs as any)?.title || 'Unknown Position'
+      console.log('[Stage Change Handler] Job title:', jobTitle)
+
+      // Only send notification for stages that have templates (not 'applied')
+      if (newStage === 'applied') {
+        console.log('[Stage Change Handler] Stage is "applied" (new application) - skipping notification')
+      } else {
+        // Call server action to send notification
+        const notificationResult = await sendNotificationEmail({
+          candidateId: draggedApp.id,
+          stage: newStage as 'screening' | 'interview' | 'offer' | 'placed' | 'rejected',
+          candidateName: profileData.full_name,
+          candidateEmail: profileData.email,
+          jobTitle: jobTitle,
+        })
+
+        console.log('[Stage Change Handler] Notification result:', notificationResult)
+
+        if (!notificationResult.success) {
+          console.error('[Stage Change Handler] Notification failed:', notificationResult.error)
+          showToast(`Warning: Stage updated but notification failed (${notificationResult.error})`, 'error')
+        } else {
+          console.log('[Stage Change Handler] ✅ Notification sent successfully')
+        }
       }
 
       // Update local state
@@ -132,7 +221,9 @@ export default function CandidatesKanbanPage() {
       )
       setDraggedApp(null)
     } catch (err) {
-      console.error('[Kanban] Drop error:', err)
+      console.error('[Stage Change Handler] Unexpected error:', err)
+      console.error('[Stage Change Handler] Raw error object:', err)
+      console.error('[Stage Change Handler] Error stringified:', JSON.stringify(err, null, 2))
       showToast('An error occurred', 'error')
       setDraggedApp(null)
     }

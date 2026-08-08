@@ -3,6 +3,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
+console.log('[sendNotificationEmail] Server action module loaded')
+console.log('[sendNotificationEmail] RESEND_API_KEY configured:', !!process.env.RESEND_API_KEY)
+console.log('[sendNotificationEmail] NOTIFICATION_FROM_EMAIL:', process.env.NOTIFICATION_FROM_EMAIL)
+
 const resend = new Resend(process.env.RESEND_API_KEY)
 const NOTIFICATION_FROM_EMAIL = process.env.NOTIFICATION_FROM_EMAIL || 'notifications@resend.dev'
 
@@ -22,9 +26,18 @@ interface NotificationData {
  * This uses the service role key to bypass RLS for logging (internal audit only)
  */
 export async function sendNotificationEmail(data: NotificationData) {
+  console.log('[sendNotificationEmail] Function called with data:', {
+    candidateId: data.candidateId,
+    stage: data.stage,
+    candidateName: data.candidateName,
+    candidateEmail: data.candidateEmail,
+    jobTitle: data.jobTitle,
+  })
+
   try {
     // Use regular client to fetch template (admin access via RLS)
     const supabase = await createClient()
+    console.log('[sendNotificationEmail] Supabase client created')
 
     // Fetch the template for this stage
     const { data: template, error: templateError } = await supabase
@@ -67,15 +80,21 @@ export async function sendNotificationEmail(data: NotificationData) {
 
     // Send email via Resend
     console.log('[Send Notification] Sending email to:', data.candidateEmail)
-    const { error: sendError } = await resend.emails.send({
+    console.log('[Send Notification] Email from:', NOTIFICATION_FROM_EMAIL)
+    console.log('[Send Notification] Email subject:', subject)
+    console.log('[Send Notification] Calling Resend API...')
+    
+    const sendResult = await resend.emails.send({
       from: NOTIFICATION_FROM_EMAIL,
       to: data.candidateEmail,
       subject: subject,
       html: `<p>${body.replace(/\n/g, '<br />')}</p>`,
     })
+    
+    console.log('[Send Notification] Resend API response:', sendResult)
 
-    if (sendError) {
-      console.error('[Send Notification] Email send error:', sendError)
+    if (sendResult.error) {
+      console.error('[Send Notification] Email send error:', sendResult.error)
       return { success: false, error: 'Failed to send email' }
     }
 
