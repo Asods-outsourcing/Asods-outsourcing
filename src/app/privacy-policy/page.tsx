@@ -167,7 +167,7 @@ export default function PrivacyPolicy() {
                   <p><strong>ASODS Outsourcing Services</strong></p>
                   <p>Lagos, Nigeria</p>
                   <p>Email: privacy@asods.com</p>
-                  <p>Phone: +234 (0) XXX XXX XXXX</p>
+                  <p>Phone: +234 705 225 8590</p>
                 </div>
               </div>
 
