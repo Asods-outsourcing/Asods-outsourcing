@@ -1,6 +1,6 @@
 # ASODS brand guide (reference)
 
-Logo: mountain/people mark in navy + gold, wordmark "ASODS OUTSOURCING LIMITED",
+Logo: mountain/people mark in navy + gold, wordmark "ASODS OUTSOURCING SERVICES",
 tagline "People. Performance. Partnership."
 
 ## Color palette

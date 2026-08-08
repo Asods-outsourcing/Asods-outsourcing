@@ -73,7 +73,7 @@ export default function Footer() {
 
         <div className="border-t pt-8" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
           <p className="text-center text-sm text-gray-400">
-            © {currentYear} ASODS Outsourcing Limited. All rights reserved. | Lagos, Nigeria
+            © {currentYear} ASODS Outsourcing Services. All rights reserved. | Lagos, Nigeria
           </p>
         </div>
       </div>

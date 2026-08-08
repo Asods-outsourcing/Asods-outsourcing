@@ -1,4 +1,4 @@
-# ASODS Outsourcing Limited — Phase 1 Build
+# ASODS Outsourcing Services — Phase 1 Build
 
 **Status:** ✅ **PHASE 1 COMPLETE — Ready for Testing & Launch**
 
@@ -362,7 +362,7 @@ Start here:
 
 ## 📄 License
 
-Private project for ASODS Outsourcing Limited.
+Private project for ASODS Outsourcing Services.
 
 ---
 

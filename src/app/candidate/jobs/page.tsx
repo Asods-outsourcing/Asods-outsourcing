@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 interface Job {
   id: string
   title: string
+  job_summary: string
   description: string
   location: string
   employer_id: string
@@ -223,7 +224,7 @@ export default function JobsPage() {
                   )}
                 </div>
 
-                <p className="text-[#333333] mb-6 line-clamp-3">{job.description}</p>
+                <p className="text-[#333333] mb-6 line-clamp-3">{job.job_summary || job.description}</p>
 
                 <div className="flex gap-3">
                   <Link

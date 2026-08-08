@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
                   1. Introduction
                 </h2>
                 <p>
-                  ASODS Outsourcing Limited ("we," "us," or "our") operates the ASODS website and services. This Privacy Policy explains how we collect, use, disclose, and otherwise process your personal information.
+                  ASODS Outsourcing Services ("we," "us," or "our") operates the ASODS website and services. This Privacy Policy explains how we collect, use, disclose, and otherwise process your personal information.
                 </p>
               </div>
 
@@ -164,7 +164,7 @@ export default function PrivacyPolicy() {
                   If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
                 </p>
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <p><strong>ASODS Outsourcing Limited</strong></p>
+                  <p><strong>ASODS Outsourcing Services</strong></p>
                   <p>Lagos, Nigeria</p>
                   <p>Email: privacy@asods.com</p>
                   <p>Phone: +234 (0) XXX XXX XXXX</p>
