@@ -1,4 +1,4 @@
-# ASODS Outsourcing Limited — business summary (for build context)
+# ASODS Outsourcing Services — business summary (for build context)
 
 Full 25-chapter business plan is kept separately by the founder; this is the
 condensed version relevant to building the website/portals.

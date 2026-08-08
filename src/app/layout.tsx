@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ASODS Outsourcing Limited - Nigeria\'s Trusted Workforce Solutions Partner',
+  title: 'ASODS Outsourcing Services - Nigeria\'s Trusted Workforce Solutions Partner',
   description: 'Providing exceptional talent. Driving business growth. Recruitment, staff outsourcing, payroll management, and HR consulting for banking, fintech, telecom, and more.',
 }
 

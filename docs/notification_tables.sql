@@ -57,21 +57,21 @@ CREATE POLICY "System can insert notification logs" ON notifications_log
 INSERT INTO notification_templates (stage, subject, body) VALUES
   ('screening', 
    '{{candidate_name}} - Next Step in Your Application',
-   'Hi {{candidate_name}},\n\nThank you for your interest in the {{job_title}} position. We''re impressed by your application and would like to move forward with the screening process.\n\nWe''ll be in touch shortly with next steps.\n\nBest regards,\nThe ASODS Team'),
+   'Hi {{candidate_name}},\n\nThank you for your interest in the {{job_title}} position. We''re impressed by your application and would like to move forward with the screening process.\n\nWe''ll be in touch shortly with next steps.\n\nBest regards,\nThe ASODS Outsourcing Services Team'),
   
   ('interview',
    '{{candidate_name}} - Interview Invitation for {{job_title}}',
-   'Hi {{candidate_name}},\n\nWe''re pleased to invite you to an interview for the {{job_title}} position. We''d love to learn more about you and discuss how you can contribute to our team.\n\nOur team will contact you with available times for the interview.\n\nBest regards,\nThe ASODS Team'),
+   'Hi {{candidate_name}},\n\nWe''re pleased to invite you to an interview for the {{job_title}} position. We''d love to learn more about you and discuss how you can contribute to our team.\n\nOur team will contact you with available times for the interview.\n\nBest regards,\nThe ASODS Outsourcing Services Team'),
   
   ('offer',
    'Job Offer - {{job_title}} Position',
-   'Hi {{candidate_name}},\n\nWe''re excited to offer you the {{job_title}} position.\n\nOffer Details:\n- Position: {{job_title}}\n- Compensation: {{salary}}\n- Start Date: {{start_date}}\n\n{{custom_note}}\n\nWe look forward to working with you!\n\nBest regards,\nThe ASODS Team'),
+   'Hi {{candidate_name}},\n\nWe''re excited to offer you the {{job_title}} position.\n\nOffer Details:\n- Position: {{job_title}}\n- Compensation: {{salary}}\n- Start Date: {{start_date}}\n\n{{custom_note}}\n\nWe look forward to working with you!\n\nBest regards,\nThe ASODS Outsourcing Services Team'),
   
   ('placed',
    '{{candidate_name}} - Welcome to Your New Role',
-   'Hi {{candidate_name}},\n\nCongratulations! You have been placed in the {{job_title}} position. This is an exciting opportunity and we''re confident you''ll make a great impact.\n\nYour journey with us begins now. If you have any questions, don''t hesitate to reach out.\n\nWelcome aboard!\n\nBest regards,\nThe ASODS Team'),
+   'Hi {{candidate_name}},\n\nCongratulations! You have been placed in the {{job_title}} position. This is an exciting opportunity and we''re confident you''ll make a great impact.\n\nYour journey with us begins now. If you have any questions, don''t hesitate to reach out.\n\nWelcome aboard!\n\nBest regards,\nThe ASODS Outsourcing Services Team'),
   
   ('rejected',
    '{{candidate_name}} - Application Update',
-   'Hi {{candidate_name}},\n\nThank you for your interest in the {{job_title}} position and for taking the time to apply. After careful consideration, we''ve decided to move forward with other candidates whose experience more closely aligns with our needs at this time.\n\nWe appreciate your effort and wish you the best in your career.\n\nBest regards,\nThe ASODS Team')
+   'Hi {{candidate_name}},\n\nThank you for your interest in the {{job_title}} position and for taking the time to apply. After careful consideration, we''ve decided to move forward with other candidates whose experience more closely aligns with our needs at this time.\n\nWe appreciate your effort and wish you the best in your career.\n\nBest regards,\nThe ASODS Outsourcing Services Team')
 ON CONFLICT (stage) DO NOTHING;

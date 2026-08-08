@@ -3,7 +3,7 @@ import Footer from '@/components/Footer'
 
 export const metadata = {
   title: 'About ASODS - Nigeria\'s Workforce Solutions Partner',
-  description: 'Learn about ASODS Outsourcing Limited, our mission, vision, and values. We deliver exceptional talent and drive business growth.',
+  description: 'Learn about ASODS Outsourcing Services, our mission, vision, and values. We deliver exceptional talent and drive business growth.',
 }
 
 export default function About() {
