@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import RichTextEditor from '@/components/RichTextEditor'
 
 interface Employer {
   id: string
@@ -13,6 +14,7 @@ interface Employer {
 interface Job {
   id: string
   title: string
+  job_summary: string
   description: string
   location: string
   employer_id: string
@@ -35,6 +37,7 @@ export default function EditJobPage() {
 
   // Form state
   const [title, setTitle] = useState('')
+  const [jobSummary, setJobSummary] = useState('')
   const [description, setDescription] = useState('')
   const [location, setLocation] = useState('')
   const [employerId, setEmployerId] = useState('')
@@ -67,6 +70,7 @@ export default function EditJobPage() {
 
         setJob(jobData)
         setTitle(jobData.title)
+        setJobSummary(jobData.job_summary || '')
         setDescription(jobData.description)
         setLocation(jobData.location)
         setEmployerId(jobData.employer_id)
@@ -103,8 +107,8 @@ export default function EditJobPage() {
 
     try {
       // Validate inputs (employer is optional)
-      if (!title || !description || !location) {
-        setError('Title, description, and location are required')
+      if (!title || !jobSummary || !description || !location) {
+        setError('Title, job summary, description, and location are required')
         setLoading(false)
         return
       }
@@ -115,6 +119,7 @@ export default function EditJobPage() {
         .from('jobs')
         .update({
           title,
+          job_summary: jobSummary,
           description,
           location,
           employer_id: employerId,
@@ -192,18 +197,35 @@ export default function EditJobPage() {
             />
           </div>
 
-          {/* Description */}
+          {/* Job Summary */}
+          <div>
+            <label htmlFor="jobSummary" className="block text-sm font-medium text-[#333333] mb-2">
+              Job Summary
+              <span className="text-gray-500 font-normal text-xs ml-2">(1-2 sentences, shown on job listing cards)</span>
+            </label>
+            <textarea
+              id="jobSummary"
+              value={jobSummary}
+              onChange={(e) => setJobSummary(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              placeholder="Brief summary of the role..."
+              rows={2}
+              disabled={loading}
+              maxLength={200}
+            />
+            <p className="text-xs text-gray-500 mt-1">{jobSummary.length}/200 characters</p>
+          </div>
+
+          {/* Description - Rich Text Editor */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-[#333333] mb-2">
               Job Description
+              <span className="text-gray-500 font-normal text-xs ml-2">(Rich text format - use Bold, Italics, Lists)</span>
             </label>
-            <textarea
-              id="description"
+            <RichTextEditor
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
-              placeholder="Full job description, responsibilities, requirements..."
-              rows={6}
+              onChange={setDescription}
+              placeholder="Enter full job description, responsibilities, requirements..."
               disabled={loading}
             />
           </div>

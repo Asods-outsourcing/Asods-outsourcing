@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import RichTextDisplay from '@/components/RichTextDisplay'
 
 interface Job {
   id: string
@@ -207,9 +208,12 @@ export default function JobDetailPage() {
               )}
             </div>
 
-            <div className="prose prose-sm max-w-none mb-8">
+            <div className="mb-8">
               <h2 className="text-xl font-bold text-[#0D1B2A] mb-4">Job Description</h2>
-              <p className="text-[#333333] whitespace-pre-wrap">{job.description}</p>
+              <RichTextDisplay 
+                content={job.description} 
+                className="text-[#333333]"
+              />
             </div>
 
             <div className="flex gap-4">
