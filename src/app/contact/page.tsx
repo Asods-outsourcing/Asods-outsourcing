@@ -74,7 +74,7 @@ export default function Contact() {
                 {
                   icon: '📞',
                   title: 'Phone',
-                  details: ['+234 (0) XXX XXX XXXX', 'Mon–Fri, 9am–6pm WAT'],
+                  details: ['+234 705 225 8590', 'Mon–Fri, 9am–6pm WAT'],
                 },
                 {
                   icon: '📧',

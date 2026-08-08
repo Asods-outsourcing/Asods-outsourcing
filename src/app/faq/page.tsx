@@ -106,7 +106,7 @@ export default function FAQ() {
       questions: [
         {
           q: 'How do I contact ASODS?',
-          a: 'Visit our Contact page to send a message, or reach us directly: info@asods.com or +234 (0) XXX XXX XXXX (Mon–Fri, 9am–6pm WAT).',
+          a: 'Visit our Contact page to send a message, or reach us directly: info@asods.com or +234 705 225 8590 (Mon–Fri, 9am–6pm WAT).',
         },
         {
           q: 'Do you offer consultations?',
