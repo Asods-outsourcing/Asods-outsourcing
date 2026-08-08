@@ -31,14 +31,19 @@ export default function JobDetailPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('[JobDetailPage] Starting load for jobId:', jobId)
+
         const {
           data: { user },
         } = await supabase.auth.getUser()
 
         if (!user) {
+          console.log('[JobDetailPage] No authenticated user, redirecting to login')
           router.push('/candidate/login')
           return
         }
+
+        console.log('[JobDetailPage] Authenticated user:', user.id)
 
         // Get candidate ID
         const { data: candidate, error: candidateError } = await supabase
@@ -47,44 +52,92 @@ export default function JobDetailPage() {
           .eq('profile_id', user.id)
           .maybeSingle()
 
-        if (candidateError || !candidate) {
+        if (candidateError) {
+          console.error('[JobDetailPage] Candidate query error:', {
+            code: candidateError.code,
+            message: candidateError.message,
+            hint: candidateError.hint,
+            details: candidateError.details,
+            fullError: JSON.stringify(candidateError),
+          })
           setError('Failed to load candidate profile')
           setLoading(false)
           return
         }
 
+        if (!candidate) {
+          console.log('[JobDetailPage] No candidate record found for profile_id:', user.id)
+          setError('Candidate profile not found. Please complete your profile first.')
+          setLoading(false)
+          return
+        }
+
+        console.log('[JobDetailPage] Found candidate:', candidate.id)
         setCandidateId(candidate.id)
 
         // Fetch job details
+        console.log('[JobDetailPage] Fetching job with id:', jobId)
         const { data: jobData, error: jobError } = await supabase
           .from('jobs')
           .select('*')
           .eq('id', jobId)
           .maybeSingle()
 
-        if (jobError || !jobData) {
+        if (jobError) {
+          console.error('[JobDetailPage] Job query error:', {
+            code: jobError.code,
+            message: jobError.message,
+            hint: jobError.hint,
+            details: jobError.details,
+            fullError: JSON.stringify(jobError),
+          })
+          setError('Failed to load job details')
+          setLoading(false)
+          return
+        }
+
+        if (!jobData) {
+          console.log('[JobDetailPage] Job not found. jobId:', jobId)
+          console.log('[JobDetailPage] This could indicate: missing job in table, job is private and not owned by employer, or RLS policy blocking access')
           setError('Job not found')
           setLoading(false)
           return
         }
 
+        console.log('[JobDetailPage] Found job:', { id: jobData.id, title: jobData.title })
         setJob(jobData)
 
         // Check if already applied
-        const { data: application } = await supabase
+        const { data: application, error: appError } = await supabase
           .from('applications')
           .select('id')
           .eq('candidate_id', candidate.id)
           .eq('job_id', jobId)
           .maybeSingle()
 
-        if (application) {
+        if (appError) {
+          console.error('[JobDetailPage] Application check error:', {
+            code: appError.code,
+            message: appError.message,
+            fullError: JSON.stringify(appError),
+          })
+          // Don't fail the whole page, just log it
+        } else if (application) {
+          console.log('[JobDetailPage] User already applied to this job')
           setApplied(true)
         }
 
         setLoading(false)
       } catch (err) {
-        console.error('Error loading job:', err)
+        console.error('[JobDetailPage] Unexpected error:', {
+          error: err,
+          errorString: String(err),
+          errorJSON: err instanceof Error ? JSON.stringify({
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          }) : 'Not an Error object',
+        })
         setError('An unexpected error occurred')
         setLoading(false)
       }
@@ -110,6 +163,11 @@ export default function JobDetailPage() {
         if (applyError.code === '23505') {
           setError('You have already applied to this job')
         } else {
+          console.error('[JobDetailPage] Application insert error:', {
+            code: applyError.code,
+            message: applyError.message,
+            fullError: JSON.stringify(applyError),
+          })
           setError('Failed to submit application')
         }
         setApplying(false)
@@ -119,7 +177,7 @@ export default function JobDetailPage() {
       setApplied(true)
       setApplying(false)
     } catch (err) {
-      console.error('Apply error:', err)
+      console.error('[JobDetailPage] Apply error:', err)
       setError('An unexpected error occurred')
       setApplying(false)
     }
