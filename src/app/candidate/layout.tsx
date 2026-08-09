@@ -19,13 +19,16 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Check if we're on the login or onboarding page
-  const isLoginPage = pathname === '/candidate/login'
-  const isOnboardingPage = pathname === '/candidate/onboarding'
+  // Check if we're on a pre-auth page (login, signup, signup-confirm, or onboarding)
+  const isPreAuthPage = 
+    pathname === '/candidate/login' ||
+    pathname === '/candidate/signup' ||
+    pathname === '/candidate/signup-confirm' ||
+    pathname === '/candidate/onboarding'
 
   useEffect(() => {
-    if (isLoginPage || isOnboardingPage) {
-      // Don't check auth on login/onboarding pages
+    if (isPreAuthPage) {
+      // Don't check auth on pre-auth pages (login, signup, signup-confirm, onboarding)
       setLoading(false)
       return
     }
@@ -68,7 +71,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
     }
 
     checkCandidateAuth()
-  }, [supabase, router, isLoginPage, isOnboardingPage])
+  }, [supabase, router, isPreAuthPage])
 
   const navItems = [
     { href: '/candidate/dashboard', label: 'Dashboard', icon: '📊' },
@@ -85,7 +88,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
   }
 
   // Show loading state for protected pages
-  if (loading && !isLoginPage && !isOnboardingPage) {
+  if (loading && !isPreAuthPage) {
     return (
       <div className="min-h-screen bg-[#F1F2F6] flex items-center justify-center">
         <p className="text-[#333333]">Loading...</p>
@@ -93,8 +96,8 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
     )
   }
 
-  // Show just the children on login/onboarding pages (no header/nav)
-  if (isLoginPage || isOnboardingPage) {
+  // Show just the children on pre-auth pages (no header/nav)
+  if (isPreAuthPage) {
     return <>{children}</>
   }
 

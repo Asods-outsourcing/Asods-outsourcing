@@ -253,7 +253,7 @@ export default function CandidateLoginPage() {
 
         <p className="text-center text-sm text-[#333333] mt-6">
           Don&rsquo;t have an account?{' '}
-          <Link href="/candidate/signup" className="text-[#D4AF37] hover:underline font-medium">
+          <Link href="/candidate/signup" className="inline-block text-[#D4AF37] hover:underline font-medium px-2 py-1 rounded transition touch-target">
             Sign up
           </Link>
         </p>
