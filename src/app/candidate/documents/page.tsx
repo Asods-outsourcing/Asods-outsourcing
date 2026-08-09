@@ -101,52 +101,89 @@ export default function DocumentsPage() {
     setSuccess('')
 
     try {
-      // Get current user for unique filename
+      // Get current user for folder structure
       const {
         data: { user },
       } = await supabase.auth.getUser()
 
       if (!user) {
+        console.error('[CVUpload] User not found')
         setError('User not found')
         setUploading(false)
         return
       }
 
-      // Upload file with unique name
-      const fileExt = 'pdf'
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      console.log('[CVUpload] Starting upload for user:', user.id)
 
-      const { error: uploadError } = await supabase.storage
+      // File path MUST follow {user_id}/{filename} structure to pass RLS policy
+      // auth.uid()::text = (storage.foldername(name))[1]
+      const fileExt = 'pdf'
+      const cleanFileName = `cv-${Date.now()}.${fileExt}`
+      const filePath = `${user.id}/${cleanFileName}`
+
+      console.log('[CVUpload] File path:', filePath)
+      console.log('[CVUpload] File size:', cvFile.size, 'bytes')
+
+      // For replace action: use .update() with upsert: true
+      // This will overwrite if the file exists (cleaner than keeping both)
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('cvs')
-        .upload(fileName, cvFile, { upsert: false })
+        .update(filePath, cvFile, { upsert: true })
 
       if (uploadError) {
+        console.error('[CVUpload] Storage upload error:', {
+          message: uploadError.message,
+          status: uploadError.status,
+          statusCode: (uploadError as any).statusCode,
+          fullError: JSON.stringify(uploadError),
+        })
         setError(`Upload failed: ${uploadError.message}`)
         setUploading(false)
         return
       }
 
-      // Get public URL
-      const { data } = supabase.storage.from('cvs').getPublicUrl(fileName)
+      console.log('[CVUpload] Upload successful, data:', uploadData)
 
-      // Update candidate record
+      // Get public URL - path must match what was uploaded
+      const { data: urlData } = supabase.storage.from('cvs').getPublicUrl(filePath)
+
+      console.log('[CVUpload] Public URL generated:', urlData.publicUrl)
+
+      // Update candidate record with new URL
       const { error: updateError } = await supabase
         .from('candidates')
-        .update({ cv_url: data.publicUrl })
+        .update({ cv_url: urlData.publicUrl })
         .eq('id', candidateId)
 
       if (updateError) {
+        console.error('[CVUpload] Database update error:', {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          fullError: JSON.stringify(updateError),
+        })
         setError(`Failed to save CV: ${updateError.message}`)
         setUploading(false)
         return
       }
 
-      setCvUrl(data.publicUrl)
+      console.log('[CVUpload] Database updated successfully')
+
+      setCvUrl(urlData.publicUrl)
       setCvFile(null)
       setFileName('')
       setSuccess('CV uploaded successfully')
       setTimeout(() => setSuccess(''), 3000)
     } catch (err) {
+      console.error('[CVUpload] Unexpected error:', {
+        error: err,
+        errorString: String(err),
+        errorJSON: err instanceof Error ? JSON.stringify({
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
+        }) : 'Not an Error object',
+      })
       setError(err instanceof Error ? err.message : 'Failed to upload CV')
     } finally {
       setUploading(false)
