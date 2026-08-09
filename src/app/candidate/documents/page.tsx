@@ -154,149 +154,129 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F2F6]">
-      {/* Header */}
-      <header className="bg-[#0D1B2A] text-white py-4 px-4 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">ASODS</h1>
-            <p className="text-sm text-gray-300">Documents</p>
-          </div>
-          <nav className="flex gap-6">
-            <Link href="/candidate/profile" className="hover:text-[#D4AF37] transition">
-              Profile
-            </Link>
-            <Link href="/candidate/dashboard" className="hover:text-[#D4AF37] transition">
-              Dashboard
-            </Link>
-          </nav>
+    <main className="max-w-4xl mx-auto py-8 px-4 sm:py-12">
+      <h1 className="text-3xl sm:text-4xl font-bold text-[#0D1B2A] mb-8">Your Documents</h1>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          {error}
         </div>
-      </header>
+      )}
 
-      <main className="max-w-3xl mx-auto py-12 px-4">
-        <h2 className="text-3xl font-bold text-[#0D1B2A] mb-8">Your Documents</h2>
+      {success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+          {success}
+        </div>
+      )}
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded">
-            {success}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-[#333333]">Loading documents...</p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Current CV */}
-            {cvUrl && (
-              <div className="bg-white rounded-lg shadow-md p-8">
-                <h3 className="text-xl font-bold text-[#0D1B2A] mb-4">Current CV</h3>
-                <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                      />
-                    </svg>
-                    <div>
-                      <p className="font-medium text-[#0D1B2A]">Resume (PDF)</p>
-                      <p className="text-xs text-gray-600">Uploaded to your profile</p>
-                    </div>
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-[#333333]">Loading documents...</p>
+        </div>
+      ) : (
+        <div className="space-y-6 sm:space-y-8">
+          {/* Current CV */}
+          {cvUrl && (
+            <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0D1B2A] mb-4">Current CV</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start sm:items-center gap-3">
+                  <svg className="w-8 h-8 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <div>
+                    <p className="font-medium text-[#0D1B2A] text-sm sm:text-base">Resume (PDF)</p>
+                    <p className="text-xs text-gray-600">Uploaded to your profile</p>
                   </div>
-                  <a
-                    href={cvUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 text-blue-600 font-medium hover:text-blue-700"
-                  >
-                    View
-                  </a>
                 </div>
+                <a
+                  href={cvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 text-blue-600 font-medium hover:text-blue-700 text-sm"
+                >
+                  View
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* Upload New CV */}
+          <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+            <h2 className="text-lg sm:text-xl font-bold text-[#0D1B2A] mb-4">
+              {cvUrl ? 'Replace CV' : 'Upload CV'}
+            </h2>
+
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 sm:p-8 text-center hover:border-[#D4AF37] transition">
+              <svg className="mx-auto h-10 sm:h-12 w-10 sm:w-12 text-gray-400 mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+
+              <label className="cursor-pointer">
+                <p className="text-xs sm:text-sm font-medium text-[#0D1B2A]">Click to upload or drag and drop</p>
+                <p className="text-xs text-gray-500 mt-1">PDF only, max 10MB</p>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  disabled={uploading}
+                />
+              </label>
+            </div>
+
+            {fileName && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs sm:text-sm">
+                Selected: <span className="font-medium">{fileName}</span>
               </div>
             )}
 
-            {/* Upload New CV */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h3 className="text-xl font-bold text-[#0D1B2A] mb-4">
-                {cvUrl ? 'Replace CV' : 'Upload CV'}
-              </h3>
-
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#D4AF37] transition">
-                <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-
-                <label className="cursor-pointer">
-                  <p className="text-sm font-medium text-[#0D1B2A]">Click to upload or drag and drop</p>
-                  <p className="text-xs text-gray-500 mt-1">PDF only, max 10MB</p>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                </label>
+            {cvFile && (
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => {
+                    setCvFile(null)
+                    setFileName('')
+                  }}
+                  className="w-full sm:flex-1 px-4 py-2 border border-gray-300 text-[#0D1B2A] rounded-lg font-medium hover:bg-gray-50 transition text-sm"
+                  disabled={uploading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpload}
+                  disabled={uploading}
+                  className="w-full sm:flex-1 px-4 py-2 bg-[#D4AF37] text-[#0D1B2A] rounded-lg font-medium hover:bg-[#c49d23] disabled:opacity-50 transition text-sm"
+                >
+                  {uploading ? 'Uploading...' : 'Upload'}
+                </button>
               </div>
-
-              {fileName && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
-                  Selected: {fileName}
-                </div>
-              )}
-
-              {cvFile && (
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={() => {
-                      setCvFile(null)
-                      setFileName('')
-                    }}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-[#0D1B2A] rounded-lg font-medium hover:bg-gray-50 transition"
-                    disabled={uploading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleUpload}
-                    disabled={uploading}
-                    className="flex-1 px-4 py-2 bg-[#D4AF37] text-[#0D1B2A] rounded-lg font-medium hover:bg-[#c49d23] disabled:opacity-50 transition"
-                  >
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Guidelines */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h4 className="font-bold text-[#0D1B2A] mb-3">CV Upload Guidelines</h4>
-              <ul className="space-y-2 text-sm text-[#333333]">
-                <li>• Format: PDF only</li>
-                <li>• Maximum size: 10MB</li>
-                <li>• Keep it concise: 1-2 pages recommended</li>
-                <li>• Include: contact info, summary, experience, skills, education</li>
-                <li>• Recruiters will review this with your job applications</li>
-              </ul>
-            </div>
+            )}
           </div>
-        )}
-      </main>
-    </div>
+
+          {/* Guidelines */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="font-bold text-[#0D1B2A] mb-3">CV Upload Guidelines</h3>
+            <ul className="space-y-2 text-xs sm:text-sm text-[#333333]">
+              <li>• Format: PDF only</li>
+              <li>• Maximum size: 10MB</li>
+              <li>• Keep it concise: 1-2 pages recommended</li>
+              <li>• Include: contact info, summary, experience, skills, education</li>
+              <li>• Recruiters will review this with your job applications</li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </main>
   )
 }
