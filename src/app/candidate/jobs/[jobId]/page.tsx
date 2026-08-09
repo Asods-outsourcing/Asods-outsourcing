@@ -10,6 +10,7 @@ interface Job {
   id: string
   title: string
   description: string
+  job_summary: string
   location: string
   employer_id: string
   created_at: string
@@ -235,6 +236,14 @@ export default function JobDetailPage() {
               Posted {new Date(job.created_at).toLocaleDateString()}
             </p>
           </div>
+
+          {job.job_summary && (
+            <div className="mb-6 sm:mb-8 p-4 bg-[#F9F7F4] rounded-lg border-l-4 border-[#D4AF37]">
+              <p className="text-base sm:text-lg text-[#333333] italic leading-relaxed">
+                {job.job_summary}
+              </p>
+            </div>
+          )}
 
           <div className="border-t border-b border-gray-200 py-4 sm:py-6 mb-6 sm:mb-8">
             {applied && (

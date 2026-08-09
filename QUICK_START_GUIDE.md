@@ -144,12 +144,4 @@ A: Yes! Use the Status dropdown in the admin jobs list - changes instantly.
 **Q: What happens if I delete a job with applications?**
 A: Modal warning shows the count. Deleting removes job AND all its applications.
 
----
 
-## Files Changed
-
-- ✅ `/admin/jobs/page.tsx` - List with status dropdown, search, duplicate, delete
-- ✅ `/admin/jobs/[id]/page.tsx` - Detail page with category field, status control, delete button
-- ✅ `/candidate/jobs/page.tsx` - Search and category filter added
-- ✅ `/admin/jobs/new/page.tsx` - Ready for category/status fields (UI forms need minor update)
-- ✅ Database migration created: `supabase/migrations/0003_add_job_status_category.sql`
