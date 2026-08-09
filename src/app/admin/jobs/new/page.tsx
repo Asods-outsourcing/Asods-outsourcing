@@ -27,6 +27,8 @@ export default function CreateJobPage() {
   const [location, setLocation] = useState('')
   const [employerId, setEmployerId] = useState('')
   const [isPublic, setIsPublic] = useState(true)
+  const [status, setStatus] = useState<'open' | 'filled' | 'paused'>('open')
+  const [category, setCategory] = useState('')
 
   // Load employers on mount
   useEffect(() => {
@@ -83,6 +85,8 @@ export default function CreateJobPage() {
         location,
         employer_id: employerId || null,
         is_public: isPublic,
+        status,
+        category: category || null,
       })
 
       if (insertError) {
@@ -217,6 +221,53 @@ export default function CreateJobPage() {
                 .
               </p>
             )}
+          </div>
+
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-[#333333] mb-2">
+              Category
+              <span className="text-gray-500 font-normal text-xs ml-2">(optional, e.g., Healthcare, Manufacturing, Banking)</span>
+            </label>
+            <input
+              type="text"
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              placeholder="e.g. Healthcare, Manufacturing, Banking"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Status Control */}
+          <div>
+            <label className="block text-sm font-medium text-[#333333] mb-2">
+              Job Status
+            </label>
+            <div className="space-y-2">
+              {(['open', 'filled', 'paused'] as const).map((s) => {
+                const labels = {
+                  open: 'Open — visible to candidates',
+                  filled: 'Filled — position taken',
+                  paused: 'Paused — temporarily hidden',
+                }
+                return (
+                  <label key={s} className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      value={s}
+                      checked={status === s}
+                      onChange={(e) => setStatus(e.target.value as 'open' | 'filled' | 'paused')}
+                      className="w-4 h-4 border-gray-300 rounded cursor-pointer"
+                      disabled={loading}
+                    />
+                    <span className="text-sm font-medium text-[#333333]">{labels[s]}</span>
+                  </label>
+                )
+              })}
+            </div>
           </div>
 
           {/* Is Public Toggle */}

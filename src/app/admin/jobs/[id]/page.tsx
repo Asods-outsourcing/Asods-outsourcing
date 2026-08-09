@@ -19,6 +19,8 @@ interface Job {
   location: string
   employer_id: string
   is_public: boolean
+  status: 'open' | 'filled' | 'paused'
+  category: string | null
   created_at: string
 }
 
@@ -42,6 +44,11 @@ export default function EditJobPage() {
   const [location, setLocation] = useState('')
   const [employerId, setEmployerId] = useState('')
   const [isPublic, setIsPublic] = useState(true)
+  const [status, setStatus] = useState<'open' | 'filled' | 'paused'>('open')
+  const [category, setCategory] = useState('')
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false)
+  const [applicationCount, setApplicationCount] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Load job and employers on mount
   useEffect(() => {
@@ -75,6 +82,8 @@ export default function EditJobPage() {
         setLocation(jobData.location)
         setEmployerId(jobData.employer_id)
         setIsPublic(jobData.is_public)
+        setStatus(jobData.status || 'open')
+        setCategory(jobData.category || '')
 
         // Load employers
         const { data: employersData, error: employersError } = await supabase
@@ -86,6 +95,16 @@ export default function EditJobPage() {
           console.error('[Edit Job] Employers fetch error:', employersError)
         } else {
           setEmployers(employersData || [])
+        }
+
+        // Load application count
+        const { data: appData, error: appError } = await supabase
+          .from('applications')
+          .select('id', { count: 'exact' })
+          .eq('job_id', jobId)
+
+        if (!appError) {
+          setApplicationCount(appData?.length || 0)
         }
 
         setLoadingData(false)
@@ -124,6 +143,8 @@ export default function EditJobPage() {
           location,
           employer_id: employerId,
           is_public: isPublic,
+          status,
+          category: category || null,
         })
         .eq('id', jobId)
 
@@ -146,6 +167,45 @@ export default function EditJobPage() {
       console.error('[Edit Job] Unexpected error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setLoading(false)
+    }
+  }
+
+  const handleDeleteJob = async () => {
+    setIsDeleting(true)
+    setError('')
+
+    try {
+      const { error: deleteError } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', jobId)
+
+      if (deleteError) {
+        console.error('[Edit Job] Delete error:', deleteError)
+        setError('Failed to delete job')
+        setIsDeleting(false)
+        return
+      }
+
+      console.log('[Edit Job] Job deleted successfully')
+      router.push('/admin/jobs')
+    } catch (err) {
+      console.error('[Edit Job] Delete error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      setIsDeleting(false)
+    }
+  }
+
+  const getStatusLabel = (s: string) => {
+    switch (s) {
+      case 'open':
+        return 'Open — visible to candidates'
+      case 'filled':
+        return 'Filled — position taken'
+      case 'paused':
+        return 'Paused — temporarily hidden'
+      default:
+        return s
     }
   }
 
@@ -267,6 +327,46 @@ export default function EditJobPage() {
             </select>
           </div>
 
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-medium text-[#333333] mb-2">
+              Category
+              <span className="text-gray-500 font-normal text-xs ml-2">(e.g., Healthcare, Manufacturing, Banking)</span>
+            </label>
+            <input
+              type="text"
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+              placeholder="Job category"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Status Control */}
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-[#333333] mb-2">
+              Job Status
+            </label>
+            <div className="space-y-2">
+              {(['open', 'filled', 'paused'] as const).map((s) => (
+                <label key={s} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="status"
+                    value={s}
+                    checked={status === s}
+                    onChange={(e) => setStatus(e.target.value as 'open' | 'filled' | 'paused')}
+                    className="w-4 h-4 border-gray-300 rounded cursor-pointer"
+                    disabled={loading}
+                  />
+                  <span className="text-sm font-medium text-[#333333]">{getStatusLabel(s)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Is Public Toggle */}
           <div className="flex items-center gap-3">
             <input
@@ -297,9 +397,52 @@ export default function EditJobPage() {
             >
               Cancel
             </Link>
+            <button
+              type="button"
+              onClick={() => setShowDeleteWarning(true)}
+              disabled={loading}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition text-sm md:text-base"
+            >
+              Delete Job
+            </button>
           </div>
         </form>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteWarning && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6">
+            <h2 className="text-lg font-bold text-[#0D1B2A] mb-4">Delete Job?</h2>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete this job? This action cannot be undone.
+            </p>
+            {applicationCount > 0 && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm font-medium text-yellow-800 mb-1">⚠️ Warning</p>
+                <p className="text-sm text-yellow-700">
+                  This job has {applicationCount} application{applicationCount !== 1 ? 's' : ''} tied to it. Deleting this job will remove those application records as well.
+                </p>
+              </div>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteWarning(false)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteJob}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition text-sm"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Job'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
