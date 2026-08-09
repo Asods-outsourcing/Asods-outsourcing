@@ -3,7 +3,7 @@ import Footer from '@/components/Footer'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'For Employers - ASODS Outsourcing',
+  title: 'For Employers - ASODS Outsourcing Services',
   description: 'Request qualified staff, manage your workforce with real-time visibility, and scale with confidence.',
 }
 

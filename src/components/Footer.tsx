@@ -45,7 +45,7 @@ export default function Footer() {
                 ASODS
               </span>
               <span className="text-xs font-semibold text-gray-400 tracking-wide">
-                OUTSOURCING
+                OUTSOURCING SERVICES
               </span>
             </div>
             <p className="text-sm text-gray-300">

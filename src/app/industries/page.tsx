@@ -2,7 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export const metadata = {
-  title: 'Industries - ASODS Outsourcing',
+  title: 'Industries - ASODS Outsourcing Services',
   description: 'Workforce solutions for banking, fintech, telecom, manufacturing, logistics, retail, and healthcare.',
 }
 

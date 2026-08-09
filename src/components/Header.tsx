@@ -41,7 +41,7 @@ export default function Header() {
                 ASODS
               </span>
               <span className="text-xs font-semibold text-gray-500 tracking-wide">
-                OUTSOURCING
+                OUTSOURCING SERVICES
               </span>
             </div>
           </div>

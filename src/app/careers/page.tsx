@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
 export const metadata = {
-  title: 'Careers - ASODS Outsourcing',
+  title: 'Careers - ASODS Outsourcing Services',
   description: 'Browse open positions at ASODS. Find opportunities in recruitment, operations, and more.',
 }
 

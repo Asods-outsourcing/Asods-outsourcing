@@ -2,8 +2,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export const metadata = {
-  title: 'Privacy Policy - ASODS Outsourcing',
-  description: 'ASODS Outsourcing privacy policy and data protection practices.',
+  title: 'Privacy Policy - ASODS Outsourcing Services',
+  description: 'ASODS Outsourcing Services privacy policy and data protection practices.',
 }
 
 export default function PrivacyPolicy() {

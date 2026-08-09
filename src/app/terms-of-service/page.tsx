@@ -2,8 +2,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export const metadata = {
-  title: 'Terms of Service - ASODS Outsourcing',
-  description: 'ASODS Outsourcing Terms of Service covering user responsibilities, acceptable use, and service terms.',
+  title: 'Terms of Service - ASODS Outsourcing Services',
+  description: 'ASODS Outsourcing Services Terms of Service covering user responsibilities, acceptable use, and service terms.',
 }
 
 export default function TermsOfService() {

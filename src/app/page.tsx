@@ -26,6 +26,9 @@ export default function Home() {
               Exceptional Talent.
               <span style={{ color: '#D4AF37' }}> Predictable Results.</span>
             </h1>
+            <p className="text-lg text-gray-200 mb-6 max-w-2xl mx-auto font-medium">
+              ASODS Outsourcing Services is a workforce solutions platform connecting jobseekers with employers across Nigeria for recruitment, staffing, and HR outsourcing.
+            </p>
             <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
               ASODS connects you with qualified professionals and manages your workforce with real-time visibility. No waiting. No surprises. Just results.
             </p>
