@@ -15,6 +15,7 @@ export default function Header() {
     { href: '/services', label: 'Services' },
     { href: '/industries', label: 'Industries' },
     { href: '/careers', label: 'Careers' },
+    { href: '/talent-pool', label: 'Talent Pool' },
     { href: '/employers', label: 'For Employers' },
     { href: '/contact', label: 'Contact' },
   ]
