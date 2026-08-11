@@ -3,19 +3,10 @@
 import { useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Page1PersonalInfo from './pages/Page1PersonalInfo'
-import Page2Education from './pages/Page2Education'
-import Page3Certifications from './pages/Page3Certifications'
-import Page4WorkExperience from './pages/Page4WorkExperience'
-import Page5CurrentEmployment from './pages/Page5CurrentEmployment'
-import Page6SkillsCompetencies from './pages/Page6SkillsCompetencies'
-import Page7JobPreferences from './pages/Page7JobPreferences'
-import Page8AvailabilityCompensation from './pages/Page8AvailabilityCompensation'
-import Page9CandidateScreening from './pages/Page9CandidateScreening'
-import Page10RoleSpecificAssessment from './pages/Page10RoleSpecificAssessment'
-import Page12CVDocuments from './pages/Page12CVDocuments'
-import Page13References from './pages/Page13References'
-import Page14Declaration from './pages/Page14Declaration'
-import Page15HowDidYouHear from './pages/Page15HowDidYouHear'
+import Page2EducationExperience from './pages/Page2EducationExperience'
+import Page3SkillsPreferences from './pages/Page3SkillsPreferences'
+import Page4AvailabilityScreening from './pages/Page4AvailabilityScreening'
+import Page5CVConsent from './pages/Page5CVConsent'
 import SuccessMessage from './SuccessMessage'
 
 export interface FormData {
@@ -27,74 +18,33 @@ export interface FormData {
   city_lga: string
   preferred_contact_method: string
 
-  // Page 2: Education
+  // Page 2: Education & Experience
   highest_education: string
   field_of_study: string
-  institution: string
-  graduation_year: string
-  has_certifications: boolean
-
-  // Page 3: Certifications (detailed_responses.certifications_list)
-  certifications_list: string[]
-  additional_certifications: string
-
-  // Page 4: Work Experience
   employment_status: string
+  years_of_experience: string
+  current_job_title: string
+  work_experience_description: string
 
-  // Page 5: Current/Recent Employment (if applicable)
-  current_job_title?: string
-  current_company?: string
-  current_industry?: string
-  years_in_role?: string
-  current_responsibilities?: string
-  current_achievements?: string
-
-  // Page 6: Skills & Competencies
+  // Page 3: Skills & Job Preferences
+  roles_of_interest: string[]
   strongest_skills: string[]
-  skill_to_improve: string
-  digital_literacy_rating: number
+  preferred_work_arrangement: string
+  preferred_employment_type: string
 
-  // Page 7: Job Preferences
-  preferred_roles: string[]
-  work_arrangement: string[]
-  employment_type: string[]
-  preferred_location: string
-  willing_to_relocate: string
-
-  // Page 8: Availability & Compensation
+  // Page 4: Availability & Screening
   availability: string
   salary_expectation: string
-  willing_to_train: string
-
-  // Page 9: Candidate Screening (detailed_responses)
   about_yourself: string
   strongest_qualities: string
-  difficult_situation: string
-  task_prioritization: string
-  why_employer_should_consider: string
-  comfortable_with_kpis: string
+  willing_to_train: string
 
-  // Page 10: Role-specific assessment
-  assessment_track: string
-  assessment_answers: Record<string, string>
-
-  // Page 12: CV & Documents
-  cv_url?: string
-  certificate_urls?: string[]
-
-  // Page 13: References
-  reference_name?: string
-  reference_relationship?: string
-  reference_contact?: string
-
-  // Page 14: Declaration & Consent
+  // Page 5: CV, Consent & Submission
+  cv_url: string
+  certificate_urls: string[]
+  referral_source: string
   declaration_agreed: boolean
   talent_pool_consent: boolean
-  communication_consent: boolean
-
-  // Page 15: How did you hear about us
-  referral_source: string
-  referral_name?: string
 }
 
 const initialFormData: FormData = {
@@ -106,47 +56,24 @@ const initialFormData: FormData = {
   preferred_contact_method: '',
   highest_education: '',
   field_of_study: '',
-  institution: '',
-  graduation_year: '',
-  has_certifications: false,
-  certifications_list: [],
-  additional_certifications: '',
   employment_status: '',
+  years_of_experience: '',
   current_job_title: '',
-  current_company: '',
-  current_industry: '',
-  years_in_role: '',
-  current_responsibilities: '',
-  current_achievements: '',
+  work_experience_description: '',
+  roles_of_interest: [],
   strongest_skills: [],
-  skill_to_improve: '',
-  digital_literacy_rating: 0,
-  preferred_roles: [],
-  work_arrangement: [],
-  employment_type: [],
-  preferred_location: '',
-  willing_to_relocate: '',
+  preferred_work_arrangement: '',
+  preferred_employment_type: '',
   availability: '',
   salary_expectation: '',
-  willing_to_train: '',
   about_yourself: '',
   strongest_qualities: '',
-  difficult_situation: '',
-  task_prioritization: '',
-  why_employer_should_consider: '',
-  comfortable_with_kpis: '',
-  assessment_track: '',
-  assessment_answers: {},
+  willing_to_train: '',
   cv_url: '',
   certificate_urls: [],
-  reference_name: '',
-  reference_relationship: '',
-  reference_contact: '',
+  referral_source: '',
   declaration_agreed: false,
   talent_pool_consent: false,
-  communication_consent: false,
-  referral_source: '',
-  referral_name: '',
 }
 
 export default function TalentPoolForm() {
@@ -173,106 +100,47 @@ export default function TalentPoolForm() {
       }
     } else if (currentPage === 2) {
       if (!formData.highest_education || !formData.field_of_study || 
-          !formData.institution || !formData.graduation_year) {
+          !formData.employment_status || !formData.years_of_experience || !formData.work_experience_description) {
         setSubmissionError('Please fill in all required fields on this page')
         hasError = true
       }
     } else if (currentPage === 3) {
-      if (formData.certifications_list.length === 0) {
-        setSubmissionError('Please select at least one certification or go back to change your answer')
+      if (formData.roles_of_interest.length === 0 || formData.strongest_skills.length === 0 ||
+          !formData.preferred_work_arrangement || !formData.preferred_employment_type) {
+        setSubmissionError('Please fill in all required fields on this page')
         hasError = true
       }
     } else if (currentPage === 4) {
-      if (!formData.employment_status) {
-        setSubmissionError('Please select your employment status')
+      if (!formData.availability || !formData.salary_expectation || !formData.about_yourself || 
+          !formData.strongest_qualities || !formData.willing_to_train) {
+        setSubmissionError('Please fill in all required fields on this page')
         hasError = true
       }
     } else if (currentPage === 5) {
-      if (!formData.current_job_title || !formData.current_company || 
-          !formData.current_industry || !formData.years_in_role) {
+      if (!formData.cv_url || formData.certificate_urls.length === 0 || !formData.referral_source) {
         setSubmissionError('Please fill in all required fields on this page')
-        hasError = true
-      }
-    } else if (currentPage === 6) {
-      if (formData.strongest_skills.length === 0 || !formData.skill_to_improve || formData.digital_literacy_rating === 0) {
-        setSubmissionError('Please fill in all required fields on this page')
-        hasError = true
-      }
-    } else if (currentPage === 7) {
-      if (formData.preferred_roles.length === 0 || formData.work_arrangement.length === 0 || 
-          formData.employment_type.length === 0 || !formData.preferred_location || !formData.willing_to_relocate) {
-        setSubmissionError('Please fill in all required fields on this page')
-        hasError = true
-      }
-    } else if (currentPage === 8) {
-      if (!formData.availability || !formData.salary_expectation || !formData.willing_to_train) {
-        setSubmissionError('Please fill in all required fields on this page')
-        hasError = true
-      }
-    } else if (currentPage === 9) {
-      if (!formData.about_yourself || !formData.strongest_qualities || !formData.difficult_situation ||
-          !formData.task_prioritization || !formData.why_employer_should_consider || !formData.comfortable_with_kpis) {
-        setSubmissionError('Please fill in all required fields on this page')
-        hasError = true
-      }
-    } else if (currentPage === 10) {
-      if (!formData.assessment_track || Object.keys(formData.assessment_answers).length === 0) {
-        setSubmissionError('Please select an assessment track and answer all questions')
-        hasError = true
-      }
-    } else if (currentPage === 15) {
-      if (!formData.referral_source) {
-        setSubmissionError('Please select how you heard about us')
         hasError = true
       }
     }
 
     if (hasError) return
 
-    // Branching logic
-    if (currentPage === 2) {
-      // Page 2: Education → Page 3 (Certifications) or skip to Page 4
-      if (formData.has_certifications) {
-        setCurrentPage(3)
-      } else {
-        setCurrentPage(4)
-      }
-    } else if (currentPage === 4) {
-      // Page 4: Work Experience → Page 5 or skip to Page 6
-      if (formData.employment_status === 'Employed' || formData.employment_status === 'Self-employed') {
-        setCurrentPage(5)
-      } else {
-        setCurrentPage(6)
-      }
-    } else {
+    // No branching logic - linear progression through 5 pages
+    if (currentPage < 5) {
       setCurrentPage(currentPage + 1)
     }
   }
 
   const handleBack = () => {
-    // Reverse branching logic
-    if (currentPage === 3) {
-      // Going back from Page 3 (Certifications) goes to Page 2
-      setCurrentPage(2)
-    } else if (currentPage === 5) {
-      // Going back from Page 5 (Current Employment) goes to Page 4
-      setCurrentPage(4)
-    } else if (currentPage === 6) {
-      // Going back from Page 6 (Skills) - could come from Page 4 or 5
-      if (formData.employment_status === 'Employed' || formData.employment_status === 'Self-employed') {
-        setCurrentPage(5)
-      } else {
-        setCurrentPage(4)
-      }
-    } else {
-      setCurrentPage(Math.max(1, currentPage - 1))
-    }
+    setCurrentPage(Math.max(1, currentPage - 1))
   }
 
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true)
       setSubmissionError(null)
+
+      console.log('[FormSubmit] Full formData state:', JSON.stringify(formData, null, 2))
 
       // Final validation before submit
       const missingFields = []
@@ -284,24 +152,23 @@ export default function TalentPoolForm() {
       if (!formData.preferred_contact_method) missingFields.push('Preferred Contact')
       if (!formData.highest_education) missingFields.push('Education Level')
       if (!formData.field_of_study) missingFields.push('Field of Study')
-      if (!formData.institution) missingFields.push('Institution')
-      if (!formData.graduation_year) missingFields.push('Graduation Year')
       if (!formData.employment_status) missingFields.push('Employment Status')
-      if (!formData.about_yourself) missingFields.push('About Yourself')
-      if (!formData.strongest_qualities) missingFields.push('Strongest Qualities')
-      if (!formData.difficult_situation) missingFields.push('Difficult Situation')
-      if (!formData.task_prioritization) missingFields.push('Task Prioritization')
-      if (!formData.why_employer_should_consider) missingFields.push('Why Employer Should Consider')
-      if (!formData.comfortable_with_kpis) missingFields.push('Comfortable with KPIs')
-      if (formData.preferred_roles.length === 0) missingFields.push('Preferred Roles')
-      if (formData.work_arrangement.length === 0) missingFields.push('Work Arrangement')
-      if (formData.employment_type.length === 0) missingFields.push('Employment Type')
-      if (!formData.preferred_location) missingFields.push('Preferred Location')
-      if (!formData.willing_to_relocate) missingFields.push('Willing to Relocate')
+      if (!formData.years_of_experience) missingFields.push('Years of Experience')
+      if (!formData.work_experience_description) missingFields.push('Work Experience')
+      if (formData.roles_of_interest.length === 0) missingFields.push('Roles of Interest')
+      if (formData.strongest_skills.length === 0) missingFields.push('Strongest Skills')
+      if (!formData.preferred_work_arrangement) missingFields.push('Preferred Work Arrangement')
+      if (!formData.preferred_employment_type) missingFields.push('Preferred Employment Type')
       if (!formData.availability) missingFields.push('Availability')
       if (!formData.salary_expectation) missingFields.push('Salary Expectation')
+      if (!formData.about_yourself) missingFields.push('About Yourself')
+      if (!formData.strongest_qualities) missingFields.push('Strongest Qualities')
       if (!formData.willing_to_train) missingFields.push('Willing to Train')
+      if (!formData.cv_url) missingFields.push('CV')
+      if (formData.certificate_urls.length === 0) missingFields.push('Certificates/Portfolio')
       if (!formData.referral_source) missingFields.push('Referral Source')
+      if (!formData.declaration_agreed) missingFields.push('Declaration Agreement')
+      if (!formData.talent_pool_consent) missingFields.push('Talent Pool Consent')
 
       if (missingFields.length > 0) {
         const errorMsg = `Missing required fields: ${missingFields.join(', ')}`
@@ -321,69 +188,41 @@ export default function TalentPoolForm() {
         preferred_contact_method: formData.preferred_contact_method,
         highest_education: formData.highest_education,
         field_of_study: formData.field_of_study,
-        institution: formData.institution,
-        graduation_year: formData.graduation_year,
-        has_certifications: formData.has_certifications,
         employment_status: formData.employment_status,
+        years_of_experience: formData.years_of_experience,
+        work_experience_description: formData.work_experience_description || '',
         current_job_title: formData.current_job_title || null,
-        current_company: formData.current_company || null,
-        current_industry: formData.current_industry || null,
-        years_in_role: formData.years_in_role || null,
-        digital_literacy_rating: formData.digital_literacy_rating || null,
-        preferred_roles: formData.preferred_roles,
-        work_arrangement: formData.work_arrangement,
-        employment_type: formData.employment_type,
-        preferred_location: formData.preferred_location,
-        willing_to_relocate: formData.willing_to_relocate,
+        roles_of_interest: formData.roles_of_interest,
+        strongest_skills: formData.strongest_skills,
+        preferred_work_arrangement: formData.preferred_work_arrangement,
+        preferred_employment_type: formData.preferred_employment_type,
         availability: formData.availability,
         salary_expectation: formData.salary_expectation,
+        about_yourself: formData.about_yourself || '',
+        strongest_qualities: formData.strongest_qualities || '',
         willing_to_train: formData.willing_to_train,
-        assessment_track: formData.assessment_track,
-        cv_url: formData.cv_url || null,
+        cv_url: formData.cv_url,
         certificate_urls: formData.certificate_urls && formData.certificate_urls.length > 0 ? formData.certificate_urls : [],
         referral_source: formData.referral_source,
-        referral_name: formData.referral_name || null,
         detailed_responses: {
-          certifications_list: formData.certifications_list || [],
-          additional_certifications: formData.additional_certifications || '',
-          strongest_skills: formData.strongest_skills || [],
-          skill_to_improve: formData.skill_to_improve || '',
-          current_responsibilities: formData.current_responsibilities || '',
-          current_achievements: formData.current_achievements || '',
           about_yourself: formData.about_yourself || '',
           strongest_qualities: formData.strongest_qualities || '',
-          difficult_situation: formData.difficult_situation || '',
-          task_prioritization: formData.task_prioritization || '',
-          why_employer_should_consider: formData.why_employer_should_consider || '',
-          comfortable_with_kpis: formData.comfortable_with_kpis || '',
-          assessment_answers: formData.assessment_answers || {},
-          reference_name: formData.reference_name || null,
-          reference_relationship: formData.reference_relationship || null,
-          reference_contact: formData.reference_contact || null,
         },
       }
 
-      // Remove top-level columns that don't exist in table schema
-      // (they're already in detailed_responses above)
-      delete (submission as any).current_responsibilities
-      delete (submission as any).current_achievements
-
       console.log('[FormSubmit] Prepared submission object:', JSON.stringify(submission, null, 2))
 
-      const { data, error } = await supabase
+      // Insert without selecting - matches the 5-page schema
+      const { error } = await supabase
         .from('talent_pool_submissions')
         .insert([submission])
 
-      console.log('[FormSubmit] Supabase response - data:', data)
-      console.log('[FormSubmit] Supabase response - error:', error)
+      console.log('[FormSubmit] Supabase insert error:', error)
 
       if (error) {
         console.error('Submission error (raw):', error)
         console.error('Submission error (stringified):', JSON.stringify(error, null, 2))
-        console.error('Submission error (type):', typeof error)
-        console.error('Submission error (keys):', error ? Object.keys(error) : 'no keys')
         
-        // Try multiple error extraction methods
         let errorMessage = 'An error occurred during submission'
         if (error instanceof Error) {
           errorMessage = error.message
@@ -405,13 +244,11 @@ export default function TalentPoolForm() {
         throw new Error(errorMessage)
       }
 
-      console.log('[FormSubmit] Submission successful, data:', data)
+      console.log('[FormSubmit] Submission successful')
       setSubmissionSuccess(true)
     } catch (err) {
       console.error('Submission error (catch block - raw):', err)
       console.error('Submission error (catch block - stringified):', JSON.stringify(err, null, 2))
-      console.error('Submission error (catch block - type):', typeof err)
-      console.error('Submission error (catch block - keys):', err ? Object.keys(err) : 'no keys')
       
       let errorMessage = 'An error occurred during submission'
       if (err instanceof Error) {
@@ -432,7 +269,7 @@ export default function TalentPoolForm() {
     return <SuccessMessage />
   }
 
-  const totalPages = 15
+  const totalPages = 5
   const pageNum = currentPage
 
   return (
@@ -462,19 +299,10 @@ export default function TalentPoolForm() {
 
           {/* Render current page */}
           {pageNum === 1 && <Page1PersonalInfo formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 2 && <Page2Education formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 3 && <Page3Certifications formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 4 && <Page4WorkExperience formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 5 && <Page5CurrentEmployment formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 6 && <Page6SkillsCompetencies formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 7 && <Page7JobPreferences formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 8 && <Page8AvailabilityCompensation formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 9 && <Page9CandidateScreening formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 10 && <Page10RoleSpecificAssessment formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 12 && <Page12CVDocuments formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 13 && <Page13References formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 14 && <Page14Declaration formData={formData} handleInputChange={handleInputChange} />}
-          {pageNum === 15 && <Page15HowDidYouHear formData={formData} handleInputChange={handleInputChange} />}
+          {pageNum === 2 && <Page2EducationExperience formData={formData} handleInputChange={handleInputChange} />}
+          {pageNum === 3 && <Page3SkillsPreferences formData={formData} handleInputChange={handleInputChange} />}
+          {pageNum === 4 && <Page4AvailabilityScreening formData={formData} handleInputChange={handleInputChange} />}
+          {pageNum === 5 && <Page5CVConsent formData={formData} handleInputChange={handleInputChange} />}
 
           {/* Navigation buttons */}
           <div className="flex gap-4 mt-8">
@@ -485,7 +313,7 @@ export default function TalentPoolForm() {
             >
               Back
             </button>
-            {pageNum < 15 && (
+            {pageNum < 5 && (
               <button
                 onClick={handleNext}
                 className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
@@ -493,10 +321,10 @@ export default function TalentPoolForm() {
                 Next
               </button>
             )}
-            {pageNum === 15 && (
+            {pageNum === 5 && (
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting || !formData.declaration_agreed || !formData.talent_pool_consent || !formData.communication_consent}
+                disabled={isSubmitting || !formData.declaration_agreed || !formData.talent_pool_consent}
                 className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Registration'}

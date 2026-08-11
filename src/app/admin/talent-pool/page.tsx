@@ -11,7 +11,7 @@ interface Submission {
   email: string
   phone: string
   state_of_residence: string
-  preferred_roles: string[]
+  roles_of_interest: string[]
   tier: string
   status: string
   created_at: string
@@ -39,7 +39,7 @@ export default function TalentPoolListPage() {
       try {
         let query = supabase
           .from('talent_pool_submissions')
-          .select('id, full_name, email, phone, state_of_residence, preferred_roles, tier, status, created_at, employment_status')
+          .select('id, full_name, email, phone, state_of_residence, roles_of_interest, tier, status, created_at, employment_status')
 
         // Apply filters
         if (tierFilter !== 'all') {
@@ -279,14 +279,14 @@ export default function TalentPoolListPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-xs space-y-1">
-                      {submission.preferred_roles.slice(0, 2).map((role, idx) => (
+                      {submission.roles_of_interest.slice(0, 2).map((role, idx) => (
                         <div key={idx} className="inline-block bg-blue-50 text-blue-700 px-2 py-1 rounded mr-1">
                           {role}
                         </div>
                       ))}
-                      {submission.preferred_roles.length > 2 && (
+                      {submission.roles_of_interest.length > 2 && (
                         <div className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                          +{submission.preferred_roles.length - 2} more
+                          +{submission.roles_of_interest.length - 2} more
                         </div>
                       )}
                     </div>

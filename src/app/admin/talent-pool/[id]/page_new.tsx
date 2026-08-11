@@ -180,7 +180,7 @@ export default function TalentPoolDetailPage() {
             </div>
           </div>
 
-          {/* Education */}
+          {/* Education & Experience */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Education & Experience</h2>
             <div className="space-y-4">
@@ -207,9 +207,79 @@ export default function TalentPoolDetailPage() {
             </div>
           </div>
 
+          {/* Skills & Job Preferences */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Skills & Job Preferences</h2>
+            <div className="space-y-4">
+              <div>
+                <div className="text-xs text-gray-500 font-semibold mb-2">Roles of Interest</div>
+                <div className="flex flex-wrap gap-2">
+                  {submission.roles_of_interest?.map((role, idx) => (
+                    <span key={idx} className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded text-sm">
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500 font-semibold mb-2">Strongest Skills</div>
+                <div className="flex flex-wrap gap-2">
+                  {submission.strongest_skills?.map((skill, idx) => (
+                    <span key={idx} className="bg-green-100 text-green-800 px-3 py-1 rounded text-sm">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold">Work Arrangement</div>
+                  <div className="text-gray-900">{submission.preferred_work_arrangement}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold">Employment Type</div>
+                  <div className="text-gray-900">{submission.preferred_employment_type}</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-
-
+          {/* Availability & Screening */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Availability & Screening</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold">Can Start</div>
+                  <div className="text-gray-900">{submission.availability}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold">Salary Expectation</div>
+                  <div className="text-gray-900">{submission.salary_expectation}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold">Willing to Train</div>
+                  <div className="text-gray-900">{submission.willing_to_train}</div>
+                </div>
+              </div>
+              {submission.detailed_responses?.about_yourself && (
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold mb-2">About Yourself</div>
+                  <div className="text-gray-900 whitespace-pre-wrap">
+                    {submission.detailed_responses.about_yourself}
+                  </div>
+                </div>
+              )}
+              {submission.detailed_responses?.strongest_qualities && (
+                <div>
+                  <div className="text-xs text-gray-500 font-semibold mb-2">Strongest Professional Qualities</div>
+                  <div className="text-gray-900 whitespace-pre-wrap">
+                    {submission.detailed_responses.strongest_qualities}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Documents */}
           {(submission.cv_url || (submission.certificate_urls && submission.certificate_urls.length > 0)) && (
