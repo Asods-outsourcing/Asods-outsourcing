@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import RichTextDisplay from '@/components/RichTextDisplay'
 
 // Mock job detail (fallback)
 const mockJobDetail = {
@@ -133,9 +134,10 @@ export default async function JobDetail({ params }: { params: Promise<{ jobId: s
                   <h2 className="text-3xl font-bold mb-4" style={{ color: '#0D1B2A' }}>
                     About This Role
                   </h2>
-                  <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                    {job.description}
-                  </p>
+                  <RichTextDisplay 
+                    content={job.description}
+                    className="text-gray-700 text-lg leading-relaxed"
+                  />
                 </div>
 
                 {/* Responsibilities */}

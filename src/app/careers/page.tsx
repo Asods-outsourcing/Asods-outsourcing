@@ -2,6 +2,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createPreview } from '@/lib/htmlUtils'
 
 export const metadata = {
   title: 'Careers - ASODS Outsourcing Services',
@@ -129,7 +130,7 @@ export default async function Careers() {
                             {job.title}
                           </h3>
                           <p className="text-gray-600 mb-3">
-                            {job.description.substring(0, 100)}...
+                            {createPreview(job.description, 120)}
                           </p>
                           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                             <span>📍 {job.location}</span>
