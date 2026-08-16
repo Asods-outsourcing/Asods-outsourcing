@@ -134,36 +134,36 @@ export default function TalentPoolDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <Link href="/admin/talent-pool" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+          <Link href="/admin/talent-pool" className="text-blue-600 hover:text-blue-800 mb-4 inline-block text-sm md:text-base">
             ← Back to Submissions
           </Link>
-          <h1 className="text-3xl font-bold text-gray-800">{submission.full_name}</h1>
-          <p className="text-gray-600 mt-2">{submission.employment_status}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">{submission.full_name}</h1>
+          <p className="text-gray-600 mt-2 text-sm md:text-base">{submission.employment_status}</p>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-500 mb-2">Registered: {new Date(submission.created_at).toLocaleDateString()}</div>
+        <div className="md:text-right text-sm">
+          <div className="text-gray-500 mb-1">Registered: {new Date(submission.created_at).toLocaleDateString()}</div>
           {submission.last_contacted_at && (
-            <div className="text-sm text-gray-500">Last contacted: {new Date(submission.last_contacted_at).toLocaleDateString()}</div>
+            <div className="text-gray-500">Last contacted: {new Date(submission.last_contacted_at).toLocaleDateString()}</div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main content */}
-        <div className="col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Personal Information */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Personal Information</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="text-xs text-gray-500 font-semibold">Email</div>
-                <div className="text-gray-900 font-semibold">{submission.email}</div>
+                <div className="text-gray-900 font-semibold break-all">{submission.email}</div>
               </div>
               <div>
                 <div className="text-xs text-gray-500 font-semibold">Phone</div>
-                <div className="text-gray-900 font-semibold">{submission.phone}</div>
+                <div className="text-gray-900 font-semibold break-all">{submission.phone}</div>
               </div>
               <div>
                 <div className="text-xs text-gray-500 font-semibold">State</div>
@@ -173,7 +173,7 @@ export default function TalentPoolDetailPage() {
                 <div className="text-xs text-gray-500 font-semibold">City/LGA</div>
                 <div className="text-gray-900">{submission.city_lga}</div>
               </div>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <div className="text-xs text-gray-500 font-semibold">Preferred Contact</div>
                 <div className="text-gray-900">{submission.preferred_contact_method}</div>
               </div>
@@ -184,7 +184,7 @@ export default function TalentPoolDetailPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Education & Experience</h2>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-xs text-gray-500 font-semibold">Highest Education Level</div>
                   <div className="text-gray-900">{submission.highest_education}</div>
@@ -194,7 +194,7 @@ export default function TalentPoolDetailPage() {
                   <div className="text-gray-900">{submission.field_of_study}</div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div className="text-xs text-gray-500 font-semibold">Years of Experience</div>
                   <div className="text-gray-900">{submission.years_of_experience}</div>
@@ -215,22 +215,33 @@ export default function TalentPoolDetailPage() {
           {(submission.cv_url || (submission.certificate_urls && submission.certificate_urls.length > 0)) && (
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Documents</h2>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {submission.cv_url && (
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                    <span className="text-gray-900 font-semibold">CV (PDF)</span>
-                    <a href={submission.cv_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-semibold">
+                  <a
+                    href={submission.cv_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition"
+                  >
+                    <span className="text-gray-900 font-semibold">📄 CV (PDF)</span>
+                    <span className="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-700 transition min-h-10 flex items-center whitespace-nowrap sm:px-6">
                       Download
-                    </a>
-                  </div>
+                    </span>
+                  </a>
                 )}
                 {submission.certificate_urls?.map((url, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                    <span className="text-gray-900 font-semibold">Certificate {idx + 1}</span>
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-semibold">
+                  <a
+                    key={idx}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition"
+                  >
+                    <span className="text-gray-900 font-semibold">📜 Certificate {idx + 1}</span>
+                    <span className="inline-block px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 transition min-h-10 flex items-center whitespace-nowrap sm:px-6">
                       Download
-                    </a>
-                  </div>
+                    </span>
+                  </a>
                 ))}
               </div>
             </div>
@@ -247,14 +258,14 @@ export default function TalentPoolDetailPage() {
         </div>
 
         {/* Sidebar - Admin Actions */}
-        <div className="col-span-1">
-          <div className="bg-white rounded-lg shadow p-6 space-y-6 sticky top-6">
+        <div className="md:col-span-1">
+          <div className="bg-white rounded-lg shadow p-6 space-y-6 md:sticky md:top-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Tier</label>
               <select
                 value={tier}
                 onChange={(e) => setTier(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="unrated">Unrated</option>
                 <option value="A">A - Job Ready</option>
@@ -269,7 +280,7 @@ export default function TalentPoolDetailPage() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="new">New</option>
                 <option value="reviewing">Reviewing</option>
@@ -284,7 +295,7 @@ export default function TalentPoolDetailPage() {
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={4}
                 placeholder="Add internal notes..."
               />
@@ -293,7 +304,7 @@ export default function TalentPoolDetailPage() {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition min-h-10 flex items-center justify-center"
             >
               {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -301,7 +312,7 @@ export default function TalentPoolDetailPage() {
             <div className="text-xs text-gray-500 p-3 bg-gray-50 rounded">
               <div className="font-semibold mb-1">Quick Info:</div>
               <div>Updated: {new Date(submission.updated_at).toLocaleDateString()}</div>
-              <div>ID: {submission.id}</div>
+              <div className="break-all">ID: {submission.id}</div>
             </div>
           </div>
         </div>

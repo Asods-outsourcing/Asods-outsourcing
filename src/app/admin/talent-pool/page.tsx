@@ -213,8 +213,8 @@ export default function TalentPoolListPage() {
         Showing {displaySubmissions.length} of {submissions.length} submission(s)
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
@@ -317,6 +317,87 @@ export default function TalentPoolListPage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {displaySubmissions.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+            No submissions found
+          </div>
+        ) : (
+          displaySubmissions.map(submission => (
+            <div key={submission.id} className="bg-white rounded-lg shadow p-4 space-y-3">
+              {/* Header with Name and View Button */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-900 break-words">{submission.full_name}</div>
+                  <div className="text-xs text-gray-500 mt-1">{submission.employment_status}</div>
+                </div>
+                <Link
+                  href={`/admin/talent-pool/${submission.id}`}
+                  className="flex-shrink-0 inline-block px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition min-h-10 flex items-center whitespace-nowrap"
+                >
+                  View
+                </Link>
+              </div>
+
+              {/* Contact Info */}
+              <div className="border-t border-gray-100 pt-3">
+                <div className="text-xs text-gray-500 font-semibold mb-1">Contact</div>
+                <div className="text-sm text-gray-700 break-all">{submission.email}</div>
+                <div className="text-sm text-gray-700 break-all">{submission.phone}</div>
+              </div>
+
+              {/* Location */}
+              <div className="border-t border-gray-100 pt-3">
+                <div className="text-xs text-gray-500 font-semibold mb-1">Location</div>
+                <div className="text-sm text-gray-700">{submission.state_of_residence}</div>
+              </div>
+
+              {/* Roles */}
+              {submission.roles_of_interest.length > 0 && (
+                <div className="border-t border-gray-100 pt-3">
+                  <div className="text-xs text-gray-500 font-semibold mb-2">Roles</div>
+                  <div className="flex flex-wrap gap-2">
+                    {submission.roles_of_interest.slice(0, 3).map((role, idx) => (
+                      <div key={idx} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
+                        {role}
+                      </div>
+                    ))}
+                    {submission.roles_of_interest.length > 3 && (
+                      <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-medium">
+                        +{submission.roles_of_interest.length - 3} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Status and Tier */}
+              <div className="border-t border-gray-100 pt-3 flex gap-3">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500 font-semibold mb-1">Tier</div>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full inline-block ${getTierBadge(submission.tier)}`}>
+                    {submission.tier}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500 font-semibold mb-1">Status</div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full inline-block ${getStatusBadge(submission.status)}`}>
+                    {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Registered Date */}
+              <div className="border-t border-gray-100 pt-3">
+                <div className="text-xs text-gray-500 font-semibold mb-1">Registered</div>
+                <div className="text-sm text-gray-700">{new Date(submission.created_at).toLocaleDateString()}</div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )
